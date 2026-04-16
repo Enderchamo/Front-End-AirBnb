@@ -1,0 +1,7 @@
+.contenedor { background-color: #f7f7f7; min-height: 100vh; padding-bottom: 2rem; }
+.contenido { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+.headerFlex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.titulo { font-size: 2rem; color: #333; margin: 0; }
+.btnPublicar { background-color: #FF5A5F; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+.error { color: #ff4d4f; }

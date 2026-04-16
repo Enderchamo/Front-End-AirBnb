@@ -1,0 +1,79 @@
+.container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.nav {
+  display: flex;
+  gap: 30px;
+  border-bottom: 1px solid #ebebeb;
+  margin-bottom: 30px;
+}
+
+.tab, .tabActive {
+  background: none;
+  border: none;
+  padding: 15px 5px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #717171;
+  transition: all 0.2s;
+}
+
+.tabActive {
+  color: #222222;
+  font-weight: 600;
+  border-bottom: 2px solid #222222;
+}
+
+.tab:hover {
+  color: #222222;
+  border-bottom: 2px solid #dddddd;
+}
+
+.welcome {
+  padding: 40px;
+  background: linear-gradient(135deg, #FF5A5F 0%, #D70466 100%);
+  border-radius: 16px;
+  color: white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  padding: 20px;
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.badge {
+  background: #f7f7f7;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status {
+  color: #008489;
+  font-size: 14px;
+  font-weight: 600;
+}

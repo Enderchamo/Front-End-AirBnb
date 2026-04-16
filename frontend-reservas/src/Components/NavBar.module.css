@@ -1,0 +1,95 @@
+.navbarContainer {
+    padding: 1rem 5%;
+    margin-top: 1rem;
+}
+
+.navbar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    background-color: #222222;
+    color: #ffffff;
+    padding: 0.8rem 2rem;
+    border-radius: 40px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.logo {
+    justify-self: start;
+    font-size: 1.4rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.links {
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    font-size: 0.9rem;
+}
+
+.link,
+.linkActive {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.link {
+    color: #b0b0b0;
+    transition: color 0.3s;
+}
+
+.link:hover {
+    color: #ffffff;
+}
+
+.linkActive {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 0 1rem;
+    border-radius: 20px;
+}
+
+.actions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.hostBtn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.iconBtn {
+    background-color: transparent;
+    border: 1px solid #555;
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.iconBtn:hover {
+    border-color: #fff;
+}

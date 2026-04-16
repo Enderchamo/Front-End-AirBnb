@@ -1,0 +1,10 @@
+.contenedor { background-color: #f7f7f7; min-height: 100vh; padding-bottom: 2rem; }
+.contenido { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+.titulo { font-size: 2rem; margin-bottom: 2rem; color: #333; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.tarjeta { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.tarjetaHeader { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+.badge { background: #eee; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+.estado { color: #008489; font-weight: bold; }
+.hint { color: #FF5A5F; font-size: 0.9rem; margin-top: 1rem; font-weight: 500; }
+.error { color: #ff4d4f; }

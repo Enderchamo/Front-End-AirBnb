@@ -1,0 +1,32 @@
+.contenedorPrincipal {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #333;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+}
+
+.cuerpoPadding {
+    padding: 0 5%;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    margin-top: 3rem;
+}
+
+.sectionTitle {
+   font-size: 1.8rem;
+    font-weight: 700; /* Un poco más gruesa */
+    color: #222222;
+    letter-spacing: -0.5px; /* Típico de diseño premium */
+}
+
+.propertyGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}

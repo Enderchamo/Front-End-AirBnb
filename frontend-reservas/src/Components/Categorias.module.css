@@ -1,0 +1,75 @@
+.contenedor {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 5%;
+    margin-top: 1rem;
+    border-bottom: 1px solid #ebebeb; /* Una línea muy sutil para separar esta sección */
+}
+
+.listaCategorias {
+    display: flex;
+    gap: 2.5rem;
+    overflow-x: auto;
+    /* Ocultamos la barra de desplazamiento fea para que se vea limpio */
+    scrollbar-width: none; 
+}
+
+.listaCategorias::-webkit-scrollbar {
+    display: none; 
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #717171; /* Gris oscuro elegante */
+    cursor: pointer;
+    min-width: max-content;
+    transition: all 0.2s ease;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid transparent;
+}
+
+.item:hover {
+    color: #222222;
+    border-bottom: 2px solid #dddddd;
+}
+
+/* Esta clase es para la categoría que esté seleccionada (ej. "All") */
+.itemActivo {
+    color: #222222;
+    border-bottom: 2px solid #222222;
+}
+
+.icono {
+    font-size: 1.5rem;
+}
+
+.etiqueta {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* El botón de Filtros a la derecha */
+.botonFiltros {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    border: 1px solid #dddddd;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #222222;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-left: 2rem;
+    transition: box-shadow 0.2s;
+}
+
+.botonFiltros:hover {
+    border-color: #222222;
+    background-color: #f7f7f7;
+}
