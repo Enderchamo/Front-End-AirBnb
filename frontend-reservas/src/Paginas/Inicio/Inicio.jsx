@@ -4,14 +4,15 @@ import styles from './Inicio.module.css';
 import PropertyCard from '../../Components/PropertyCard'; 
 import Navbar from '../../Components/NavBar';
 import Hero from '../../Components/Hero';
-import Categorias from '../../Components/Categorias';
 
 export default function Inicio() {
   const [propiedades, setPropiedades] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(false); // 1. Nuevo estado de error
 
   const buscarPropiedades = async (filtros = {}) => {
     setCargando(true);
+    setError(false); // Reiniciamos el error al buscar
     try {
       const parametrosLimpios = {};
       if (filtros.ubicacion) parametrosLimpios.ubicacion = filtros.ubicacion;
@@ -23,8 +24,9 @@ export default function Inicio() {
         params: parametrosLimpios
       });
       setPropiedades(respuesta.data);
-    } catch (error) {
-      console.error("Error al obtener las propiedades:", error);
+    } catch (err) {
+      console.error("Error al obtener las propiedades:", err);
+      setError(true); // 2. Activamos el error si la petición falla
     } finally {
       setCargando(false);
     }
@@ -38,17 +40,38 @@ export default function Inicio() {
     <div className={styles.contenedorPrincipal}>
       <Navbar />
       <Hero onSearch={buscarPropiedades} />
-      <Categorias /> {/* Volvemos a las categorías originales */}
-
+      
       <div className={styles.cuerpoPadding}>
         <section>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Todas las Cabañas Disponibles</h2>
           </div>
 
+          {/* 3. Lógica de renderizado condicional optimizada */}
           {cargando ? (
-            <p style={{ textAlign: 'center', fontSize: '1.5rem' }}>⏳ Buscando propiedades...</p>
+            <div className={styles.propertyGrid}>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <div key={n} className={styles.skeletonCard}>
+                  <div className={styles.skeletonImage}></div>
+                  <div className={styles.skeletonText}></div>
+                  <div className={styles.skeletonTextShort}></div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            /* INTERFAZ DE ERROR DE CONEXIÓN */
+            <div className={styles.errorContainer}>
+              <span className={styles.errorIcon}>📡</span>
+              <p className={styles.errorText}>No pudimos conectarnos con el servidor.</p>
+              <button className={styles.retryBtn} onClick={() => buscarPropiedades()}>
+                Reintentar conexión
+              </button>
+            </div>
+          ) : propiedades.length === 0 ? (
+            /* CASO: CONEXIÓN OK PERO SIN RESULTADOS */
+            <p className={styles.noDataText}>No se encontraron propiedades que coincidan con tu búsqueda.</p>
           ) : (
+            /* CASO ÉXITO: MOSTRAR GRILLA */
             <div className={styles.propertyGrid}>
               {propiedades.map(prop => (
                 <PropertyCard 

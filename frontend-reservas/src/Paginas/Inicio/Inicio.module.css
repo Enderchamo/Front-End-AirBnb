@@ -30,3 +30,94 @@
     gap: 2rem;
     margin-bottom: 3rem;
 }
+
+.skeletonCard {
+    background-color: #fff;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    height: 330px; 
+}
+
+.skeletonImage {
+    width: 100%;
+    height: 220px;
+    background: #eeeeee;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeletonText {
+    margin: 1rem 1.2rem 0.5rem 1.2rem;
+    height: 20px;
+    background: #eeeeee;
+    border-radius: 4px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeletonTextShort {
+    margin: 0 1.2rem 1rem 1.2rem;
+    height: 15px;
+    width: 60%;
+    background: #eeeeee;
+    border-radius: 4px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { background-color: #eeeeee; }
+    50% { background-color: #e0e0e0; }
+    100% { background-color: #eeeeee; }
+}
+
+/* Agrega esto al final de Inicio.module.css */
+
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-radius: 30px;
+    margin-top: 2rem;
+    border: 1px dashed #ddd;
+}
+
+.errorIcon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.errorText {
+    font-size: 1.2rem;
+    color: #484848;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.retryBtn {
+    background-color: #FF5A5F;
+    color: white;
+    border: none;
+    padding: 0.8rem 2.5rem;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(255, 90, 95, 0.3);
+}
+
+.retryBtn:hover {
+    transform: scale(1.05);
+    background-color: #e34c51;
+}
+
+.noDataText {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #717171;
+    margin-top: 3rem;
+}

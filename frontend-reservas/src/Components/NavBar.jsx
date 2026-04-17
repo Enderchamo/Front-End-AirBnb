@@ -1,4 +1,4 @@
-import styles from './Navbar.module.css';
+import styles from './NavBar.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext.jsx'; 
 
@@ -11,50 +11,51 @@ export default function Navbar() {
     navigate('/');
   };
 
-  // 🛡️ LÓGICA INFALIBLE POR DESCARTE
+  // 🛡️ LÓGICA DE ROLES
   const rolNet = usuario?.role || usuario?.Role || usuario?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
   const esAnfitrion = usuario?.esHost || usuario?.EsHost || rolNet === 'Host' || rolNet === 'Anfitrion';
   const esInvitado = estaAutenticado && !esAnfitrion;
 
   return (
     <div className={styles.navbarContainer}>
-      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#222', color: 'white', borderRadius: '50px', margin: '1rem' }}>
+      <nav className={styles.navbar}>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => navigate('/')}>
+        {/* LOGO */}
+        <div className={styles.logo} onClick={() => navigate('/')}>
           <span role="img" aria-label="tent">⛺</span> Apex
         </div>
 
-        <div style={{ display: 'flex', gap: '1.5rem', backgroundColor: '#333', padding: '0.5rem 1.5rem', borderRadius: '20px', fontSize: '0.9rem' }}>
-          <span style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>Home</span>
-          <span style={{ cursor: 'pointer', color: '#aaa' }}>Experiences</span>
-          <span style={{ cursor: 'pointer', color: '#aaa' }}>Services</span>
+        {/* ENLACES CENTRALES - Solo Home */}
+        <div className={styles.links}>
+          <span className={styles.linkActive} onClick={() => navigate('/')}>Home</span>
         </div>
 
-        <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', fontSize: '0.9rem' }}>
+        {/* ACCIONES Y PERFIL */}
+        <div className={styles.actions}>
           
           {estaAutenticado && (
             <>
-              {/* 1. Opción para Huéspedes (Guests) */}
+              {/* Opción para Huéspedes */}
               {esInvitado && (
                 <span 
-                  style={{ cursor: 'pointer', color: '#fff' }} 
+                  className={styles.navAction} 
                   onClick={() => navigate('/mis-viajes')}
                 >
                   Mis Viajes
                 </span>
               )}
 
-              {/* 2. Opción para Anfitriones (Hosts) */}
+              {/* Opción para Anfitriones */}
               {esAnfitrion && (
                 <>
                   <span 
-                    style={{ cursor: 'pointer', color: '#fff' }} 
+                    className={styles.navAction}
                     onClick={() => navigate('/mis-propiedades')}
                   >
                     Mis Propiedades
                   </span>
                   <span 
-                    style={{ cursor: 'pointer', fontWeight: 'bold', color: '#FF5A5F' }} 
+                    className={styles.publishAction} 
                     onClick={() => navigate('/crear-propiedad')}
                   >
                     Publish Property
@@ -65,17 +66,17 @@ export default function Navbar() {
           )}
 
           {!estaAutenticado ? (
-            <button onClick={() => navigate('/login')} style={{ backgroundColor: 'white', color: '#222', border: 'none', padding: '0.4rem 1rem', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button className={styles.loginBtn} onClick={() => navigate('/login')}>
               Log In / Sign Up
             </button>
           ) : (
-            <button onClick={manejarCerrarSesion} style={{ backgroundColor: 'transparent', color: '#ff4d4f', border: '1px solid #ff4d4f', padding: '0.4rem 1rem', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button className={styles.logoutBtn} onClick={manejarCerrarSesion}>
               Log Out
             </button>
           )}
 
           {estaAutenticado && (
-            <div style={{ backgroundColor: '#444', color: 'white', borderRadius: '50%', width: '35px', height: '35px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem', border: '1px solid #666' }}>
+            <div className={styles.avatar}>
               {usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : 'U'}
             </div>
           )}

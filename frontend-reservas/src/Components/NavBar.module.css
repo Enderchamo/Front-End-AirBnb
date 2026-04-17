@@ -1,95 +1,122 @@
+/* NavBar.module.css */
 .navbarContainer {
-    padding: 1rem 5%;
-    margin-top: 1rem;
+    /* Mantiene un pequeño margen exterior */
+    margin: 1rem;
 }
 
 .navbar {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    background-color: #222222;
-    color: #ffffff;
-    padding: 0.8rem 2rem;
-    border-radius: 40px;
+    padding: 1rem 2rem;
+    background-color: #222;
+    color: white;
+    border-radius: 50px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .logo {
-    justify-self: start;
-    font-size: 1.4rem;
-    font-weight: bold;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-weight: bold;
+    font-size: 1.2rem;
     cursor: pointer;
 }
 
 .links {
-    justify-self: center;
     display: flex;
-    align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
+    background-color: #333;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
     font-size: 0.9rem;
-}
-
-.link,
-.linkActive {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px;
-    box-sizing: border-box;
-    cursor: pointer;
 }
 
 .link {
-    color: #b0b0b0;
-    transition: color 0.3s;
+    cursor: pointer;
+    color: #aaa;
+    transition: color 0.3s ease;
 }
 
 .link:hover {
-    color: #ffffff;
+    color: #fff;
 }
 
 .linkActive {
+    cursor: pointer;
     color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.15);
-    padding: 0 1rem;
-    border-radius: 20px;
 }
 
 .actions {
-    justify-self: end;
     display: flex;
+    gap: 1.2rem;
     align-items: center;
-    gap: 1rem;
     font-size: 0.9rem;
 }
 
-.hostBtn {
-    background: none;
+.navAction {
+    cursor: pointer;
+    color: #fff;
+    transition: opacity 0.3s ease;
+}
+
+.navAction:hover {
+    opacity: 0.8;
+}
+
+.publishAction {
+    cursor: pointer;
+    font-weight: bold;
+    color: #FF5A5F;
+    transition: opacity 0.3s ease;
+}
+
+.publishAction:hover {
+    opacity: 0.8;
+}
+
+.loginBtn {
+    background-color: white;
+    color: #222;
     border: none;
-    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
     cursor: pointer;
-    font-weight: 500;
+    transition: background-color 0.3s ease;
 }
 
-.iconBtn {
+.loginBtn:hover {
+    background-color: #f0f0f0;
+}
+
+.logoutBtn {
     background-color: transparent;
-    border: 1px solid #555;
-    color: white;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    color: #ff4d4f;
+    border: 1px solid #ff4d4f;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
     cursor: pointer;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
 }
 
-.iconBtn:hover {
-    border-color: #fff;
+.logoutBtn:hover {
+    background-color: #ff4d4f;
+    color: white;
+}
+
+.avatar {
+    background-color: #444;
+    color: white;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    border: 1px solid #666;
 }
