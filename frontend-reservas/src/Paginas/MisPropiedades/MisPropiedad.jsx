@@ -23,7 +23,6 @@ export default function MisPropiedades() {
       try {
         const respuesta = await api.get('/Propiedad/Buscar');
         
-        // 🚨 FIX: Convertimos ambos lados a String para que "1" sea igual a 1
         const misPropiedades = respuesta.data.filter(p => 
           String(p.hostId) === String(usuario?.id) || 
           String(p.HostId) === String(usuario?.id)
@@ -41,11 +40,20 @@ export default function MisPropiedades() {
     cargarMisPropiedades();
   }, [estaAutenticado, usuario, navigate]);
 
+  // 🛠️ FUNCIÓN PARA ARREGLAR LA URL DE LA IMAGEN
+  const obtenerUrlImagen = (ruta) => {
+    // Si no hay imagen, mostramos una por defecto
+    if (!ruta) return 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c';
+    // Si ya viene con http (como las de unsplash), la dejamos igual
+    if (ruta.startsWith('http')) return ruta;
+    // Si es una ruta local del backend, le pegamos el localhost:5085
+    return `http://localhost:5085${ruta.startsWith('/') ? '' : '/'}${ruta}`;
+  };
+
   return (
     <div className={styles.contenedor}>
       <Navbar />
       <div className={styles.contenido}>
-        
         <div className={styles.headerFlex}>
            <h1 className={styles.titulo}>Mis Propiedades</h1>
            <button className={styles.btnPublicar} onClick={() => navigate('/crear-propiedad')}>
@@ -68,7 +76,8 @@ export default function MisPropiedades() {
                title={prop.titulo || prop.Titulo} 
                details={`$${prop.precioPorNoche || prop.PrecioPorNoche} por noche - ${prop.ubicacion || prop.Ubicacion}`} 
                rating={5.0}
-               image={prop.fotos && prop.fotos.length > 0 ? prop.fotos[0].url : 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c'} 
+               /* 👇 Usamos la nueva función con la propiedad correcta (imagenUrl) */
+               image={obtenerUrlImagen(prop.imagenUrl || prop.ImagenUrl)} 
              />
           ))}
         </div>
