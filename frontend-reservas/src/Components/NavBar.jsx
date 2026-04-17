@@ -1,3 +1,4 @@
+// src/Components/NavBar.jsx
 import styles from './NavBar.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext.jsx'; 
@@ -11,7 +12,6 @@ export default function Navbar() {
     navigate('/');
   };
 
-  // 🛡️ LÓGICA DE ROLES
   const rolNet = usuario?.role || usuario?.Role || usuario?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
   const esAnfitrion = usuario?.esHost || usuario?.EsHost || rolNet === 'Host' || rolNet === 'Anfitrion';
   const esInvitado = estaAutenticado && !esAnfitrion;
@@ -20,45 +20,29 @@ export default function Navbar() {
     <div className={styles.navbarContainer}>
       <nav className={styles.navbar}>
         
-        {/* LOGO */}
-        <div className={styles.logo} onClick={() => navigate('/')}>
-          <span role="img" aria-label="tent">⛺</span> Apex
-        </div>
-
-        {/* ENLACES CENTRALES - Solo Home */}
-        <div className={styles.links}>
+        {/* IZQUIERDA: Botón Home en su nueva posición */}
+        <div className={styles.leftSection}>
           <span className={styles.linkActive} onClick={() => navigate('/')}>Home</span>
         </div>
 
-        {/* ACCIONES Y PERFIL */}
+        {/* DERECHA: Acciones y Perfil */}
         <div className={styles.actions}>
           
           {estaAutenticado && (
             <>
-              {/* Opción para Huéspedes */}
               {esInvitado && (
-                <span 
-                  className={styles.navAction} 
-                  onClick={() => navigate('/mis-viajes')}
-                >
+                <span className={styles.link} onClick={() => navigate('/mis-viajes')}>
                   Mis Viajes
                 </span>
               )}
 
-              {/* Opción para Anfitriones */}
               {esAnfitrion && (
                 <>
-                  <span 
-                    className={styles.navAction}
-                    onClick={() => navigate('/mis-propiedades')}
-                  >
+                  <span className={styles.link} onClick={() => navigate('/mis-propiedades')}>
                     Mis Propiedades
                   </span>
-                  <span 
-                    className={styles.publishAction} 
-                    onClick={() => navigate('/crear-propiedad')}
-                  >
-                    Publish Property
+                  <span className={styles.publishAction} onClick={() => navigate('/crear-propiedad')}>
+                    Publicar Propiedad
                   </span>
                 </>
               )}

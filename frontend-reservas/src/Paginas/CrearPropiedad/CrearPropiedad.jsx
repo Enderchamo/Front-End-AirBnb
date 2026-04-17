@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
-import { useAuth } from '../context/AuthContext';
-import Navbar from '../Components/Navbar/Navbar';
+import api from '../../api/axios';
+import { useAuth } from '../../Context/AuthContext';
+import Navbar from '../../Components/NavBar';
+import toast from 'react-hot-toast';
+import styles from './CrearPropiedad.module.css'; // 👈 Importamos los nuevos estilos
 
 export default function CrearPropiedad() {
   const navigate = useNavigate();
   const { usuario, estaAutenticado, cargandoAuth } = useAuth();
   const [cargando, setCargando] = useState(false);
   
-  // Estado para el formulario (igual al DTO de tu C#)
   const [formData, setFormData] = useState({
     titulo: '',
     ubicacion: '',
@@ -18,11 +19,10 @@ export default function CrearPropiedad() {
     precioPorNoche: 0
   });
 
-  // PROTECCIÓN DE RUTA: Si no es host, lo pateamos al inicio
   useEffect(() => {
     if (!cargandoAuth) {
       if (!estaAutenticado || !usuario?.esHost) {
-        alert("Área restringida solo para Anfitriones (Hosts).");
+        toast.error("Área restringida: Solo para Anfitriones.", { id: 'restriccion-host' });
         navigate('/');
       }
     }
@@ -37,73 +37,106 @@ export default function CrearPropiedad() {
     setCargando(true);
 
     try {
-      // Armamos el paquete. Ya no nos preocupamos por el Token, axios.js lo hace
       const payload = {
         Titulo: formData.titulo,
         Ubicacion: formData.ubicacion,
         Descripcion: formData.descripcion,
         Capacidad: parseInt(formData.capacidad),
         PrecioPorNoche: parseFloat(formData.precioPorNoche),
-        HostId: parseInt(usuario.id) // Lo sacamos directo del Cerebro
+        HostId: parseInt(usuario.id)
       };
 
       await api.post('/Propiedad', payload);
 
-      alert("¡Propiedad publicada con éxito! 🏠");
-      navigate('/');
+      toast.success("¡Propiedad publicada con éxito! 🏠", { duration: 3000 });
+      navigate('/mis-propiedades');
     } catch (error) {
       const data = error.response?.data;
-      if (data?.errores) alert("Revisa: \n" + data.errores.join("\n"));
-      else if (data?.error) alert("Error: " + data.error);
-      else alert("Ocurrió un error al crear la propiedad.");
+      if (data?.errores) toast.error("Revisa: \n" + data.errores.join("\n"));
+      else if (data?.error) toast.error("Error: " + data.error);
+      else toast.error("Ocurrió un error al crear la propiedad.");
     } finally {
       setCargando(false);
     }
   };
 
-  // Evitar parpadeos mientras carga la autenticación
-  if (cargandoAuth) return <p>Cargando...</p>;
+  if (cargandoAuth) return <p style={{ textAlign: 'center', marginTop: '3rem' }}>Verificando permisos...</p>;
 
   return (
-    <div style={{ backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
+    <div className={styles.container}>
       <Navbar />
-      <div style={{ maxWidth: '600px', margin: '3rem auto', padding: '2rem', backgroundColor: 'white', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Publica tu Cabaña</h2>
-        <form onSubmit={manejarEnvio} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className={styles.formCard}>
+        <h2 className={styles.title}>Publica tu Cabaña</h2>
+        
+        <form onSubmit={manejarEnvio} className={styles.form}>
           
-          <div>
-            <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Título de la propiedad</label>
-            <input name="titulo" onChange={manejarCambio} required style={estiloInput} />
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Título de la propiedad</label>
+            <input 
+              name="titulo" 
+              onChange={manejarCambio} 
+              required 
+              placeholder="Ej. Cabaña frente al lago" 
+              className={styles.input} 
+            />
           </div>
 
-          <div>
-            <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Ubicación</label>
-            <input name="ubicacion" onChange={manejarCambio} required style={estiloInput} />
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Ubicación</label>
+            <input 
+              name="ubicacion" 
+              onChange={manejarCambio} 
+              required 
+              placeholder="Ej. Jarabacoa, República Dominicana" 
+              className={styles.input} 
+            />
           </div>
 
-          <div>
-            <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Descripción</label>
-            <textarea name="descripcion" onChange={manejarCambio} required style={{ ...estiloInput, height: '100px' }} />
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Descripción</label>
+            <textarea 
+              name="descripcion" 
+              onChange={manejarCambio} 
+              required 
+              placeholder="Describe qué hace especial a tu propiedad..." 
+              className={`${styles.input} ${styles.textarea}`} 
+            />
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Capacidad (Huéspedes)</label>
-              <input name="capacidad" type="number" min="1" onChange={manejarCambio} required style={estiloInput} />
+          <div className={styles.row}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Capacidad (Huéspedes)</label>
+              <input 
+                name="capacidad" 
+                type="number" 
+                min="1" 
+                onChange={manejarCambio} 
+                required 
+                className={styles.input} 
+              />
             </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Precio por Noche ($)</label>
-              <input name="precioPorNoche" type="number" step="1" onChange={manejarCambio} required style={estiloInput} />
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Precio por Noche ($)</label>
+              <input 
+                name="precioPorNoche" 
+                type="number" 
+                step="1" 
+                onChange={manejarCambio} 
+                required 
+                className={styles.input} 
+              />
             </div>
           </div>
 
-          <button type="submit" disabled={cargando} style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#FF5A5F', color: 'white', border: 'none', borderRadius: '8px', cursor: cargando ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '1rem' }}>
-            {cargando ? 'Publicando...' : 'Publicar Propiedad'}
+          <button 
+            type="submit" 
+            disabled={cargando} 
+            className={styles.submitBtn}
+          >
+            {cargando ? 'Publicando propiedad...' : 'Publicar Propiedad'}
           </button>
         </form>
       </div>
     </div>
   );
 }
-
-const estiloInput = { padding: '0.8rem', borderRadius: '8px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box', marginTop: '0.3rem' };

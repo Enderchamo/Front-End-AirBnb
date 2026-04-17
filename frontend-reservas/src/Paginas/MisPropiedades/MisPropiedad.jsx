@@ -15,17 +15,20 @@ export default function MisPropiedades() {
 
   useEffect(() => {
     if (!estaAutenticado || (!usuario?.esHost && !usuario?.EsHost)) {
-       // Redirigir si no está logueado o no es host
       navigate('/');
       return;
     }
 
     const cargarMisPropiedades = async () => {
       try {
-        // Obtenemos todas las propiedades
         const respuesta = await api.get('/Propiedad/Buscar');
-        // Filtramos para mostrar solo las del usuario actual
-        const misPropiedades = respuesta.data.filter(p => p.hostId === usuario?.id || p.HostId === usuario?.id);
+        
+        // 🚨 FIX: Convertimos ambos lados a String para que "1" sea igual a 1
+        const misPropiedades = respuesta.data.filter(p => 
+          String(p.hostId) === String(usuario?.id) || 
+          String(p.HostId) === String(usuario?.id)
+        );
+        
         setPropiedades(misPropiedades);
       } catch (err) {
         console.error("Error al cargar propiedades:", err);
@@ -42,16 +45,19 @@ export default function MisPropiedades() {
     <div className={styles.contenedor}>
       <Navbar />
       <div className={styles.contenido}>
+        
         <div className={styles.headerFlex}>
-           <h1 className={styles.titulo}>Mis Propiedades 🔑</h1>
-           <button className={styles.btnPublicar} onClick={() => navigate('/crear-propiedad')}>+ Publicar Nueva</button>
+           <h1 className={styles.titulo}>Mis Propiedades</h1>
+           <button className={styles.btnPublicar} onClick={() => navigate('/crear-propiedad')}>
+             Publicar Nueva
+           </button>
         </div>
         
-        {cargando && <p>Cargando tus listados...</p>}
+        {cargando && <p style={{ fontSize: '1.2rem' }}>⏳ Cargando tus listados...</p>}
         {error && <p className={styles.error}>{error}</p>}
         
         {!cargando && !error && propiedades.length === 0 && (
-          <p>Aún no has publicado ninguna propiedad.</p>
+          <p className={styles.mensajeVacio}>Aún no has publicado ninguna propiedad.</p>
         )}
 
         <div className={styles.grid}>

@@ -1,0 +1,103 @@
+/* src/Paginas/CrearPropiedad/CrearPropiedad.module.css */
+.container {
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    padding-bottom: 4rem;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.formCard {
+    max-width: 650px;
+    margin: 3rem auto;
+    padding: 3rem;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: #222222;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.row {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.row .inputGroup {
+    flex: 1; /* Hace que ambos campos en la fila midan lo mismo */
+}
+
+.label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #484848;
+}
+
+.input {
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    border: 1px solid #dcdcdc;
+    font-size: 1rem;
+    color: #222222;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    outline: none;
+}
+
+/* Efecto moderno cuando el usuario hace clic en el input */
+.input:focus {
+    border-color: #222222;
+    box-shadow: 0 0 0 1.5px #222222;
+}
+
+.input::placeholder {
+    color: #aaaaaa;
+}
+
+.textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.submitBtn {
+    margin-top: 1.5rem;
+    padding: 1.2rem;
+    background-color: #FF5A5F;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+    background-color: #e34c51;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+}
+
+.submitBtn:disabled {
+    background-color: #ffb3b5;
+    cursor: not-allowed;
+}

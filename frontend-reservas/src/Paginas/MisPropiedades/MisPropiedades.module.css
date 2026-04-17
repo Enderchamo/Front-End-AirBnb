@@ -1,7 +1,56 @@
-.contenedor { background-color: #f7f7f7; min-height: 100vh; padding-bottom: 2rem; }
-.contenido { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.headerFlex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.titulo { font-size: 2rem; color: #333; margin: 0; }
-.btnPublicar { background-color: #FF5A5F; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+.contenedor { 
+    background-color: #f9f9f9; 
+    min-height: 100vh; 
+    padding-bottom: 2rem; 
+}
+
+.contenido { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 2rem 5%; 
+}
+
+.headerFlex { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 2.5rem; 
+    border-bottom: 1px solid #eaeaea; 
+    padding-bottom: 1rem; 
+}
+
+.titulo { 
+    font-size: 2rem; 
+    color: #222; 
+    margin: 0; 
+}
+
+/* 🚀 Botón Fantasma: Más sofisticado, menos gritón */
+.btnPublicar { 
+    background-color: transparent; 
+    color: #222; 
+    border: 1px solid #222; 
+    padding: 0.6rem 1.2rem; 
+    border-radius: 8px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+}
+
+.btnPublicar:hover { 
+    background-color: #f0f0f0; 
+}
+
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 2rem; 
+}
+
 .error { color: #ff4d4f; }
+
+.mensajeVacio { 
+    color: #717171; 
+    font-size: 1.1rem; 
+    margin-top: 2rem; 
+}
