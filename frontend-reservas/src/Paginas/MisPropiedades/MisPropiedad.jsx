@@ -40,14 +40,20 @@ export default function MisPropiedades() {
     cargarMisPropiedades();
   }, [estaAutenticado, usuario, navigate]);
 
-  // 🛠️ FUNCIÓN PARA ARREGLAR LA URL DE LA IMAGEN
   const obtenerUrlImagen = (ruta) => {
-    // Si no hay imagen, mostramos una por defecto
     if (!ruta) return 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c';
-    // Si ya viene con http (como las de unsplash), la dejamos igual
     if (ruta.startsWith('http')) return ruta;
-    // Si es una ruta local del backend, le pegamos el localhost:5085
-    return `http://localhost:5085${ruta.startsWith('/') ? '' : '/'}${ruta}`;
+
+    let rutaLimpia = ruta.replace(/\\/g, '/');
+    if (rutaLimpia.includes('wwwroot/')) {
+      rutaLimpia = rutaLimpia.split('wwwroot/')[1];
+    }
+    rutaLimpia = rutaLimpia.replace('~', '');
+    if (!rutaLimpia.startsWith('/')) {
+      rutaLimpia = '/' + rutaLimpia;
+    }
+
+    return `http://localhost:5085${rutaLimpia}`;
   };
 
   return (
@@ -61,12 +67,18 @@ export default function MisPropiedades() {
            </button>
         </div>
         
+        {/* 🕵️‍♂️ MODO DETECTIVE: Esto imprimirá los datos puros en pantalla */}
+        <div style={{ background: '#ffe6e6', padding: '1rem', marginBottom: '1rem', borderRadius: '8px' }}>
+            <h4 style={{ color: 'red', margin: '0 0 0.5rem 0' }}>🔍 Datos recibidos de C#:</h4>
+            {propiedades.map((p, index) => (
+                <p key={index} style={{ fontSize: '0.85rem', margin: '0.2rem 0', fontFamily: 'monospace' }}>
+                    <strong>{p.titulo || p.Titulo}:</strong> {p.imagenUrl || p.ImagenUrl ? `Ruta guardada -> ${p.imagenUrl || p.ImagenUrl}` : "⚠️ LA RUTA ES NULL (Vacía)"}
+                </p>
+            ))}
+        </div>
+
         {cargando && <p style={{ fontSize: '1.2rem' }}>⏳ Cargando tus listados...</p>}
         {error && <p className={styles.error}>{error}</p>}
-        
-        {!cargando && !error && propiedades.length === 0 && (
-          <p className={styles.mensajeVacio}>Aún no has publicado ninguna propiedad.</p>
-        )}
 
         <div className={styles.grid}>
           {propiedades.map(prop => (
@@ -76,7 +88,6 @@ export default function MisPropiedades() {
                title={prop.titulo || prop.Titulo} 
                details={`$${prop.precioPorNoche || prop.PrecioPorNoche} por noche - ${prop.ubicacion || prop.Ubicacion}`} 
                rating={5.0}
-               /* 👇 Usamos la nueva función con la propiedad correcta (imagenUrl) */
                image={obtenerUrlImagen(prop.imagenUrl || prop.ImagenUrl)} 
              />
           ))}

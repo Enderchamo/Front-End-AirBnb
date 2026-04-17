@@ -8,11 +8,11 @@ import Hero from '../../Components/Hero';
 export default function Inicio() {
   const [propiedades, setPropiedades] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(false); // 1. Nuevo estado de error
+  const [error, setError] = useState(false);
 
   const buscarPropiedades = async (filtros = {}) => {
     setCargando(true);
-    setError(false); // Reiniciamos el error al buscar
+    setError(false);
     try {
       const parametrosLimpios = {};
       if (filtros.ubicacion) parametrosLimpios.ubicacion = filtros.ubicacion;
@@ -26,7 +26,7 @@ export default function Inicio() {
       setPropiedades(respuesta.data);
     } catch (err) {
       console.error("Error al obtener las propiedades:", err);
-      setError(true); // 2. Activamos el error si la petición falla
+      setError(true);
     } finally {
       setCargando(false);
     }
@@ -35,6 +35,23 @@ export default function Inicio() {
   useEffect(() => {
     buscarPropiedades();
   }, []);
+
+  // 🛠️ FUNCIÓN PARA ARREGLAR LA URL DE LA IMAGEN (Igual que en MisPropiedades)
+  const obtenerUrlImagen = (ruta) => {
+    if (!ruta) return 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c';
+    if (ruta.startsWith('http')) return ruta;
+
+    let rutaLimpia = ruta.replace(/\\/g, '/');
+    if (rutaLimpia.includes('wwwroot/')) {
+      rutaLimpia = rutaLimpia.split('wwwroot/')[1];
+    }
+    rutaLimpia = rutaLimpia.replace('~', '');
+    if (!rutaLimpia.startsWith('/')) {
+      rutaLimpia = '/' + rutaLimpia;
+    }
+
+    return `http://localhost:5085${rutaLimpia}`;
+  };
 
   return (
     <div className={styles.contenedorPrincipal}>
@@ -47,7 +64,6 @@ export default function Inicio() {
             <h2 className={styles.sectionTitle}>Todas las Cabañas Disponibles</h2>
           </div>
 
-          {/* 3. Lógica de renderizado condicional optimizada */}
           {cargando ? (
             <div className={styles.propertyGrid}>
               {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
@@ -59,7 +75,6 @@ export default function Inicio() {
               ))}
             </div>
           ) : error ? (
-            /* INTERFAZ DE ERROR DE CONEXIÓN */
             <div className={styles.errorContainer}>
               <span className={styles.errorIcon}>📡</span>
               <p className={styles.errorText}>No pudimos conectarnos con el servidor.</p>
@@ -68,19 +83,18 @@ export default function Inicio() {
               </button>
             </div>
           ) : propiedades.length === 0 ? (
-            /* CASO: CONEXIÓN OK PERO SIN RESULTADOS */
             <p className={styles.noDataText}>No se encontraron propiedades que coincidan con tu búsqueda.</p>
           ) : (
-            /* CASO ÉXITO: MOSTRAR GRILLA */
             <div className={styles.propertyGrid}>
               {propiedades.map(prop => (
                 <PropertyCard 
                   key={prop.id} 
                   id={prop.id}
-                  title={prop.titulo} 
-                  details={`$${prop.precioPorNoche} por noche - ${prop.ubicacion}`} 
+                  title={prop.titulo || prop.Titulo} 
+                  details={`$${prop.precioPorNoche || prop.PrecioPorNoche} por noche - ${prop.ubicacion || prop.Ubicacion}`} 
                   rating={5.0}
-                  image={prop.fotos && prop.fotos.length > 0 ? prop.fotos[0].url : 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c'} 
+                  /* 👇 Aplicamos la función y apuntamos a imagenUrl */
+                  image={obtenerUrlImagen(prop.imagenUrl || prop.ImagenUrl)} 
                 />
               ))}
             </div>
