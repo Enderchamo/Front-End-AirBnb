@@ -1,5 +1,7 @@
+// src/Paginas/Inicio/Inicio.jsx
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axios'; // 👈 Cambiamos axios por nuestra instancia configurada
+import { mostrarErrorApi } from '../src/utils/manejarErrorApi'; // 👈 Importamos el gestor de errores
 import styles from './Inicio.module.css';
 import PropertyCard from '../../Components/PropertyCard'; 
 import Navbar from '../../Components/NavBar';
@@ -20,12 +22,14 @@ export default function Inicio() {
       if (filtros.fechaSalida) parametrosLimpios.fechaSalida = filtros.fechaSalida;
       if (filtros.capacidadMinimas) parametrosLimpios.capacidadMinimas = filtros.capacidadMinimas;
 
-      const respuesta = await axios.get('http://localhost:5085/api/Propiedad/Buscar', {
+      // Usamos 'api' que ya tiene la URL base configurada
+      const respuesta = await api.get('/Propiedad/Buscar', {
         params: parametrosLimpios
       });
       setPropiedades(respuesta.data);
     } catch (err) {
       console.error("Error al obtener las propiedades:", err);
+      mostrarErrorApi(err, 'error-buscar-propiedades'); // 👈 Manejo centralizado
       setError(true);
     } finally {
       setCargando(false);
@@ -36,7 +40,7 @@ export default function Inicio() {
     buscarPropiedades();
   }, []);
 
-  // 🛠️ FUNCIÓN PARA ARREGLAR LA URL DE LA IMAGEN (Igual que en MisPropiedades)
+  // 🛠️ FUNCIÓN PARA ARREGLAR LA URL DE LA IMAGEN
   const obtenerUrlImagen = (ruta) => {
     if (!ruta) return 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c';
     if (ruta.startsWith('http')) return ruta;
@@ -93,7 +97,6 @@ export default function Inicio() {
                   title={prop.titulo || prop.Titulo} 
                   details={`$${prop.precioPorNoche || prop.PrecioPorNoche} por noche - ${prop.ubicacion || prop.Ubicacion}`} 
                   rating={5.0}
-                  /* 👇 Aplicamos la función y apuntamos a imagenUrl */
                   image={obtenerUrlImagen(prop.imagenUrl || prop.ImagenUrl)} 
                 />
               ))}

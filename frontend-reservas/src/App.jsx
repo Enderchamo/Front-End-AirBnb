@@ -6,7 +6,7 @@ import DetallePropiedad from './Paginas/DetallePropiedad/DetallePropiedad.jsx';
 import Registro from './Paginas/Registro.jsx';
 import MisViajes from './Paginas/MisViajes/MisViajes.jsx';
 import MisPropiedades from './Paginas/MisPropiedades/MisPropiedad.jsx';
-// 1. Añadimos la importación del componente
+import EditarPropiedad from './Paginas/EditarPropiedad/EditarPropiedad.jsx';
 import CrearPropiedad from './Paginas/CrearPropiedad/CrearPropiedad.jsx';
 import { Toaster } from 'react-hot-toast';
 
@@ -27,6 +27,7 @@ function App() {
         
         {/* 2. Registramos la ruta para crear propiedades */}
         <Route path="/crear-propiedad" element={<CrearPropiedad />} />
+        <Route path="/editar-propiedad/:id" element={<EditarPropiedad />} />
       </Routes>
     </BrowserRouter>
   );

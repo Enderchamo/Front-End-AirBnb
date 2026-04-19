@@ -6,6 +6,7 @@ import { useAuth } from '../../Context/AuthContext';
 import Navbar from '../../Components/NavBar';
 import toast from 'react-hot-toast';
 import styles from './CrearPropiedad.module.css';
+import { mostrarErrorApi } from '../src/utils/manejarErrorApi';
 
 export default function CrearPropiedad() {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export default function CrearPropiedad() {
   });
 
   useEffect(() => {
+    // Verificación de rol Host basada en el contexto
     if (!cargandoAuth && (!estaAutenticado || !usuario?.esHost)) {
       toast.error("Área restringida: Solo para Anfitriones.", { id: 'restriccion-host' });
       navigate('/');
@@ -55,18 +57,32 @@ export default function CrearPropiedad() {
     setCargando(true);
 
     try {
+      // 🛠️ SOLUCIÓN AL ERROR 400: Extracción segura del ID
+      // Buscamos el ID en las propiedades estándar de JWT que emite tu backend en .NET
+      const hostIdRaw = usuario?.id || usuario?.nameid || usuario?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      
+      // Validación preventiva: Si aún así no tenemos ID, frenamos el envío para no causar el 400
+      if (!hostIdRaw) {
+        toast.error("Error de sesión: No pudimos identificar tu usuario. Por favor vuelve a iniciar sesión.");
+        setCargando(false);
+        return;
+      }
+
+      // Estructura exacta de CrearPropiedadDto
       const payload = {
         Titulo: formData.titulo,
         Ubicacion: formData.ubicacion,
         Descripcion: formData.descripcion,
         Capacidad: parseInt(formData.capacidad),
         PrecioPorNoche: parseFloat(formData.precioPorNoche),
-        HostId: parseInt(usuario.id)
+        HostId: parseInt(hostIdRaw) // 👈 Ahora sí enviamos el número correcto
       };
 
+      // 1. Crear la propiedad base
       const respuestaPropiedad = await api.post('/Propiedad', payload);
       const nuevaPropiedadId = respuestaPropiedad.data.id || respuestaPropiedad.data.Id; 
 
+      // 2. Subir la imagen al endpoint especializado
       const imageData = new FormData();
       imageData.append('imagen', imagen); 
 
@@ -78,11 +94,8 @@ export default function CrearPropiedad() {
       navigate('/mis-propiedades');
 
     } catch (error) {
-      console.error("Error completo:", error);
-      const data = error.response?.data;
-      if (data?.errores) toast.error("Revisa: \n" + data.errores.join("\n"));
-      else if (data?.error) toast.error("Error: " + data.error);
-      else toast.error("Error de conexión al servidor.");
+      console.error("Error al crear propiedad:", error);
+      mostrarErrorApi(error, 'crear-propiedad-error');
     } finally {
       setCargando(false);
     }
@@ -97,30 +110,61 @@ export default function CrearPropiedad() {
         <h2 className={styles.title}>Publica tu Cabaña</h2>
         
         <form onSubmit={manejarEnvio} className={styles.form}>
-          
           <div className={styles.inputGroup}>
             <label className={styles.label}>Título de la propiedad</label>
-            <input name="titulo" onChange={manejarCambio} required placeholder="Ej. Cabaña frente al lago" className={styles.input} />
+            <input 
+              name="titulo" 
+              onChange={manejarCambio} 
+              required 
+              placeholder="Ej. Cabaña frente al lago" 
+              className={styles.input} 
+            />
           </div>
 
           <div className={styles.inputGroup}>
             <label className={styles.label}>Ubicación</label>
-            <input name="ubicacion" onChange={manejarCambio} required placeholder="Ej. Jarabacoa, República Dominicana" className={styles.input} />
+            <input 
+              name="ubicacion" 
+              onChange={manejarCambio} 
+              required 
+              placeholder="Ej. Jarabacoa, República Dominicana" 
+              className={styles.input} 
+            />
           </div>
 
           <div className={styles.inputGroup}>
             <label className={styles.label}>Descripción</label>
-            <textarea name="descripcion" onChange={manejarCambio} required placeholder="Describe qué hace especial a tu propiedad..." className={`${styles.input} ${styles.textarea}`} />
+            <textarea 
+              name="descripcion" 
+              onChange={manejarCambio} 
+              required 
+              placeholder="Describe qué hace especial a tu propiedad..." 
+              className={`${styles.input} ${styles.textarea}`} 
+            />
           </div>
 
           <div className={styles.row}>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Capacidad (Huéspedes)</label>
-              <input name="capacidad" type="number" min="1" onChange={manejarCambio} required className={styles.input} />
+              <input 
+                name="capacidad" 
+                type="number" 
+                min="1" 
+                onChange={manejarCambio} 
+                required 
+                className={styles.input} 
+              />
             </div>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Precio / Noche ($)</label>
-              <input name="precioPorNoche" type="number" step="1" onChange={manejarCambio} required className={styles.input} />
+              <input 
+                name="precioPorNoche" 
+                type="number" 
+                step="1" 
+                onChange={manejarCambio} 
+                required 
+                className={styles.input} 
+              />
             </div>
           </div>
 
@@ -142,7 +186,12 @@ export default function CrearPropiedad() {
             ) : (
               <div className={styles.previewSingle}>
                 <img src={previsualizacion} alt="Previa" className={styles.previewImage} />
-                <button type="button" className={styles.removeBtn} onClick={quitarImagen} title="Eliminar foto">✕</button>
+                <button 
+                  type="button" 
+                  className={styles.removeBtn} 
+                  onClick={quitarImagen} 
+                  title="Eliminar foto"
+                >✕</button>
               </div>
             )}
           </div>

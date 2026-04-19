@@ -1,8 +1,10 @@
+// src/Paginas/Login.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../Context/AuthContext';
-import toast from 'react-hot-toast'; // 1. Importamos la librería de notificaciones
+import toast from 'react-hot-toast'; 
+import { mostrarErrorApi } from './src/utils/manejarErrorApi'; // 👈 Importación
 
 const estilos = {
   contenedorPrincipal: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundImage: 'url(https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2070)', backgroundSize: 'cover', backgroundPosition: 'center', fontFamily: 'sans-serif', color: 'white' },
@@ -17,7 +19,6 @@ const estilos = {
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   
   const navigate = useNavigate();
@@ -25,36 +26,28 @@ export default function Login() {
 
   const manejarLogin = async (e) => {
     e.preventDefault();
-    setError('');
     setCargando(true);
 
     try {
-      const respuesta = await api.post('/Usuarios/login', { email, password });
+      // 👈 Payload adaptado a LoginUsuarioDto
+      const payload = {
+        Email: email,
+        Password: password
+      };
+
+      const respuesta = await api.post('/Usuarios/login', payload);
       login(respuesta.data.token);
       
-      // 2. Notificación de Autenticación Exitosa
       toast.success("¡Autenticación exitosa! Bienvenido de nuevo.", {
         duration: 3000,
-        id: 'login-exito' // Evita duplicados
+        id: 'login-exito'
       });
 
       navigate('/');
     } catch (err) {
-      const data = err.response?.data;
-      let mensajeError = "Error de autenticación al conectar con el servidor.";
-
-      if (data?.errores) mensajeError = data.errores.join(" | ");
-      else if (data?.errors) mensajeError = Object.values(data.errors).flat().join(" | ");
-      else if (data?.error) mensajeError = data.error;
-      
-      setError(mensajeError);
-      
-      // 3. Notificación de Error de Autenticación
-      toast.error(`Fallo en la autenticación: ${mensajeError}`, {
-        duration: 4000,
-        id: 'login-error'
-      });
-
+      console.error("Error al iniciar sesión:", err);
+      // 👈 Delegamos el renderizado del error visual a la utilidad
+      mostrarErrorApi(err, 'login-error');
     } finally {
       setCargando(false);
     }

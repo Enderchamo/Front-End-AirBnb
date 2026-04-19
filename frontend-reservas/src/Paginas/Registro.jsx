@@ -1,9 +1,10 @@
+// src/Paginas/Registro.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
-import toast from 'react-hot-toast'; // 1. Importamos la librería de notificaciones
+import toast from 'react-hot-toast'; 
+import { mostrarErrorApi } from './src/utils/manejarErrorApi'; // 👈 Importación
 
-// Estilos actualizados para centrado perfecto
 const estilos = {
   contenedorPrincipal: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundImage: 'url(https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2070)', backgroundSize: 'cover', backgroundPosition: 'center', fontFamily: 'sans-serif', color: 'white' },
   tarjetaGlass: { display: 'flex', width: '900px', maxWidth: '90%', minHeight: '500px', backgroundColor: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' },
@@ -18,46 +19,41 @@ export default function Registro() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ nombre: '', email: '', password: '', rol: '' });
   const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState('');
+  const [errorLocal, setErrorLocal] = useState(''); // Manejo de errores local rápido para el banner
 
   const manejarCambio = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const manejarRegistro = async (e) => {
     e.preventDefault();
     setCargando(true);
-    setError('');
+    setErrorLocal('');
 
     try {
+      // 👈 Payload adaptado exactamente a RegistrarUsuarioDto
       const datosRegistro = {
-        nombre: formData.nombre,
-        email: formData.email,
-        password: formData.password,
-        esHost: formData.rol === 'Host',
-        esGuest: formData.rol === 'Guest'
+        Nombre: formData.nombre,
+        Email: formData.email,
+        Password: formData.password,
+        EsHost: formData.rol === 'Host',
+        EsGuest: formData.rol === 'Guest'
       };
 
       await api.post('/Usuarios/registro', datosRegistro);
       
-      // 2. Reemplazamos el alert feo por un Toast elegante
       toast.success("¡Cuenta creada con éxito! Por favor inicia sesión.", {
         duration: 3000,
-        id: 'registro-exito' // Evita que salgan varios si le dan doble click
+        id: 'registro-exito' 
       });
       
-      // 3. Esperamos 1.5 segundos para que vean el mensaje antes de cambiar de página
       setTimeout(() => {
         navigate('/login');
       }, 1500);
 
     } catch (err) {
-      const data = err.response?.data;
-      if (data?.errores) setError(data.errores.join(" | "));
-      else if (data?.errors) setError(Object.values(data.errors).flat().join(" | "));
-      else if (data?.error) setError(data.error);
-      else setError("Error de conexión al servidor.");
-      
-      // También podemos poner un toast para el error si lo deseas
-      toast.error("Hubo un problema al crear tu cuenta.");
+      console.error("Error al registrar:", err);
+      // Si la petición falla, mostramos un mensaje genérico en la UI pero el detalle completo en el Toast
+      setErrorLocal("Revisa los errores detallados en la notificación emergente.");
+      mostrarErrorApi(err, 'registro-error-api');
     } finally {
       setCargando(false);
     }
@@ -73,7 +69,7 @@ export default function Registro() {
 
         <div style={estilos.ladoDerecho}>
           <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', fontWeight: 'normal' }}>Regístrate</h2>
-          {error && <p style={{ color: '#ff4d4f', backgroundColor: 'rgba(255,0,0,0.1)', padding: '0.5rem', borderRadius: '5px' }}>{error}</p>}
+          {errorLocal && <p style={{ color: '#ff4d4f', backgroundColor: 'rgba(255,0,0,0.1)', padding: '0.5rem', borderRadius: '5px' }}>{errorLocal}</p>}
           
           <form onSubmit={manejarRegistro} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             <div>
