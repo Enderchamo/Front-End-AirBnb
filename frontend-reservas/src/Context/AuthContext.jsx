@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     setCargandoAuth(false);
   }, []);
 
-  // Función para iniciar sesión (ahora el Login la usará)
+  // Función para iniciar sesión
   const login = (token) => {
     localStorage.setItem('token', token);
     const decoded = jwtDecode(token);
@@ -51,14 +51,29 @@ export const AuthProvider = ({ children }) => {
     setUsuario(null);
   };
 
+  // 🛠️ NUEVA FUNCIÓN: Permite actualizar los roles en el estado actual
+  const actualizarUsuario = (nuevosDatos) => {
+    setUsuario(prev => ({
+      ...prev,
+      ...nuevosDatos
+    }));
+  };
+
   return (
-    <AuthContext.Provider value={{ usuario, login, logout, estaAutenticado: !!usuario, cargandoAuth }}>
+    <AuthContext.Provider value={{ 
+      usuario, 
+      login, 
+      logout, 
+      actualizarUsuario, // Exportamos la nueva función
+      estaAutenticado: !!usuario, 
+      cargandoAuth 
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook personalizado para usar el contexto fácilmente en cualquier componente
+// Hook personalizado
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
