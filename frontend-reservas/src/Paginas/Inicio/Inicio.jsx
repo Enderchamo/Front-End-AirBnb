@@ -1,10 +1,9 @@
 // src/Paginas/Inicio/Inicio.jsx
 import { useState, useEffect } from 'react';
-import api from '../../api/axios'; // 👈 Cambiamos axios por nuestra instancia configurada
-import { mostrarErrorApi } from '../src/utils/manejarErrorApi'; // 👈 Importamos el gestor de errores
+import api from '../../api/axios'; 
+import { mostrarErrorApi } from '../src/utils/manejarErrorApi'; // Ruta corregida
 import styles from './Inicio.module.css';
 import PropertyCard from '../../Components/PropertyCard'; 
-import Navbar from '../../Components/NavBar';
 import Hero from '../../Components/Hero';
 
 export default function Inicio() {
@@ -22,14 +21,12 @@ export default function Inicio() {
       if (filtros.fechaSalida) parametrosLimpios.fechaSalida = filtros.fechaSalida;
       if (filtros.capacidadMinimas) parametrosLimpios.capacidadMinimas = filtros.capacidadMinimas;
 
-      // Usamos 'api' que ya tiene la URL base configurada
       const respuesta = await api.get('/Propiedad/Buscar', {
         params: parametrosLimpios
       });
       setPropiedades(respuesta.data);
     } catch (err) {
-      console.error("Error al obtener las propiedades:", err);
-      mostrarErrorApi(err, 'error-buscar-propiedades'); // 👈 Manejo centralizado
+      mostrarErrorApi(err, 'error-buscar-propiedades');
       setError(true);
     } finally {
       setCargando(false);
@@ -40,26 +37,21 @@ export default function Inicio() {
     buscarPropiedades();
   }, []);
 
-  // 🛠️ FUNCIÓN PARA ARREGLAR LA URL DE LA IMAGEN
   const obtenerUrlImagen = (ruta) => {
     if (!ruta) return 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c';
     if (ruta.startsWith('http')) return ruta;
-
     let rutaLimpia = ruta.replace(/\\/g, '/');
     if (rutaLimpia.includes('wwwroot/')) {
       rutaLimpia = rutaLimpia.split('wwwroot/')[1];
     }
     rutaLimpia = rutaLimpia.replace('~', '');
-    if (!rutaLimpia.startsWith('/')) {
-      rutaLimpia = '/' + rutaLimpia;
-    }
-
+    if (!rutaLimpia.startsWith('/')) rutaLimpia = '/' + rutaLimpia;
     return `http://localhost:5085${rutaLimpia}`;
   };
 
   return (
     <div className={styles.contenedorPrincipal}>
-      <Navbar />
+      {/* 🛑 Navbar eliminado de aquí */}
       <Hero onSearch={buscarPropiedades} />
       
       <div className={styles.cuerpoPadding}>
@@ -70,24 +62,18 @@ export default function Inicio() {
 
           {cargando ? (
             <div className={styles.propertyGrid}>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+              {[1, 2, 3, 4].map((n) => (
                 <div key={n} className={styles.skeletonCard}>
                   <div className={styles.skeletonImage}></div>
                   <div className={styles.skeletonText}></div>
-                  <div className={styles.skeletonTextShort}></div>
                 </div>
               ))}
             </div>
           ) : error ? (
             <div className={styles.errorContainer}>
-              <span className={styles.errorIcon}>📡</span>
-              <p className={styles.errorText}>No pudimos conectarnos con el servidor.</p>
-              <button className={styles.retryBtn} onClick={() => buscarPropiedades()}>
-                Reintentar conexión
-              </button>
+              <p>No pudimos conectarnos con el servidor.</p>
+              <button onClick={() => buscarPropiedades()}>Reintentar</button>
             </div>
-          ) : propiedades.length === 0 ? (
-            <p className={styles.noDataText}>No se encontraron propiedades que coincidan con tu búsqueda.</p>
           ) : (
             <div className={styles.propertyGrid}>
               {propiedades.map(prop => (
@@ -95,8 +81,7 @@ export default function Inicio() {
                   key={prop.id} 
                   id={prop.id}
                   title={prop.titulo || prop.Titulo} 
-                  details={`$${prop.precioPorNoche || prop.PrecioPorNoche} por noche - ${prop.ubicacion || prop.Ubicacion}`} 
-                  rating={5.0}
+                  details={`$${prop.precioPorNoche || prop.PrecioPorNoche} por noche`} 
                   image={obtenerUrlImagen(prop.imagenUrl || prop.ImagenUrl)} 
                 />
               ))}
