@@ -1,71 +1,77 @@
 // src/Components/NavBar.jsx
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext';
 import styles from './NavBar.module.css';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../Context/AuthContext.jsx'; 
 
 export default function Navbar() {
+  const { usuario, logout, estaAutenticado, modoApp, alternarModoApp } = useAuth();
   const navigate = useNavigate();
-  const { usuario, estaAutenticado, logout } = useAuth();
 
-  const manejarCerrarSesion = () => {
+  const manejarLogout = () => {
     logout();
-    navigate('/');
+    navigate('/login');
   };
 
-  const rolNet = usuario?.role || usuario?.Role || usuario?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-  const esAnfitrion = usuario?.esHost || usuario?.EsHost || rolNet === 'Host' || rolNet === 'Anfitrion';
-  const esInvitado = estaAutenticado && !esAnfitrion;
+  const nombreAMostrar = (() => {
+    if (!usuario?.email) return 'Usuario';
+    const parte = usuario.email.split('@')[0];
+    return parte.charAt(0).toUpperCase() + parte.slice(1);
+  })();
 
   return (
-    <div className={styles.navbarContainer}>
-      <nav className={styles.navbar}>
+    <nav className={styles.fullNav}>
+      <div className={styles.contentNav}>
         
-        {/* IZQUIERDA: Botón Home en su nueva posición */}
-        <div className={styles.leftSection}>
-          <span className={styles.linkActive} onClick={() => navigate('/')}>Home</span>
+        {/* BLOQUE IZQUIERDO: LOGO */}
+        <div className={styles.sectionLeft}>
+          <Link to="/" className={styles.logoLink}>
+            <div className={styles.homeBadge}>Home</div>
+          </Link>
         </div>
 
-        {/* DERECHA: Acciones y Perfil */}
-        <div className={styles.actions}>
-          
-          {estaAutenticado && (
+        {/* BLOQUE DERECHO: LINKS Y PERFIL */}
+        <div className={styles.sectionRight}>
+          {estaAutenticado ? (
             <>
-              {esInvitado && (
-                <span className={styles.link} onClick={() => navigate('/mis-viajes')}>
-                  Mis Viajes
-                </span>
+              {/* VISTAS CONDICIONALES SEGÚN EL MODO */}
+              {modoApp === 'anfitrion' ? (
+                <>
+                  <Link to="/mis-propiedades" className={styles.navLink}>Mis Propiedades</Link>
+                  <Link to="/crear-propiedad" className={`${styles.navLink} ${styles.publishLink}`}>
+                    Publicar Propiedad
+                  </Link>
+                </>
+              ) : (
+                <Link to="/mis-viajes" className={styles.navLink}>Mis Viajes</Link>
               )}
 
-              {esAnfitrion && (
-                <>
-                  <span className={styles.link} onClick={() => navigate('/mis-propiedades')}>
-                    Mis Propiedades
-                  </span>
-                  <span className={styles.publishAction} onClick={() => navigate('/crear-propiedad')}>
-                    Publicar Propiedad
-                  </span>
-                </>
+              {/* BOTÓN PARA CAMBIAR EL MODO (Solo aparece si el usuario es Host en la BD) */}
+              {usuario?.esHost && (
+                <button onClick={alternarModoApp} className={styles.switchModeBtn}>
+                  Cambiar a modo {modoApp === 'anfitrion' ? 'Viajero' : 'Anfitrión'}
+                </button>
               )}
+
+              <button onClick={manejarLogout} className={styles.logoutBtn}>
+                Log Out
+              </button>
+
+              <div className={styles.userProfile}>
+                <span className={styles.userName}>{nombreAMostrar}</span>
+                <div className={styles.avatar}>
+                  {nombreAMostrar.charAt(0).toUpperCase()}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className={styles.navLink}>Iniciar Sesión</Link>
+              <Link to="/registro" className={styles.navRegisterBtn}>Registrarse</Link>
             </>
           )}
-
-          {!estaAutenticado ? (
-            <button className={styles.loginBtn} onClick={() => navigate('/login')}>
-              Log In / Sign Up
-            </button>
-          ) : (
-            <button className={styles.logoutBtn} onClick={manejarCerrarSesion}>
-              Log Out
-            </button>
-          )}
-
-          {estaAutenticado && (
-            <div className={styles.avatar}>
-              {usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : 'U'}
-            </div>
-          )}
         </div>
-      </nav>
-    </div>
+
+      </div>
+    </nav>
   );
 }

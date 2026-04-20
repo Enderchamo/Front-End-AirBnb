@@ -1,19 +1,18 @@
+// src/Paginas/DetallePropiedad/DetallePropiedad.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import styles from './DetallePropiedad.module.css';
-import Navbar from '../../Components/NavBar';
-import SeccionResenas from '../../Components/SeccionResenas';
-import toast from 'react-hot-toast';
-
-// Importaciones del nuevo estándar
 import api from '../../api/axios'; 
 import { useAuth } from '../../Context/AuthContext';
-import { mostrarErrorApi } from '../src/utils/manejarErrorApi';
+import { mostrarErrorApi } from '../src/utils/manejarErrorApi'; // Ruta corregida
+import Navbar from '../../Components/NavBar';
+import SeccionResenas from '../../Components/SeccionResenas';
+import styles from './DetallePropiedad.module.css';
+import toast from 'react-hot-toast';
 
 export default function DetallePropiedad() {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  const { usuario, estaAutenticado } = useAuth(); // Obtenemos el estado de auth global
+  const { usuario, estaAutenticado, cargandoAuth } = useAuth();
   
   const [propiedad, setPropiedad] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -21,153 +20,153 @@ export default function DetallePropiedad() {
   const [fechaSalida, setFechaSalida] = useState('');
   const [procesandoReserva, setProcesandoReserva] = useState(false);
 
+  // Fecha mínima: Mañana (Evita el error 400 de "fecha mayor a hoy")
+  const manana = new Date();
+  manana.setDate(manana.getDate() + 1);
+  const minFecha = manana.toISOString().split('T')[0];
+
+  const obtenerUrlImagen = (ruta) => {
+    if (!ruta) return 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2';
+    if (ruta.startsWith('http')) return ruta;
+    let rutaLimpia = ruta.replace(/\\/g, '/').replace('wwwroot/', '').replace('~', '');
+    if (!rutaLimpia.startsWith('/')) rutaLimpia = '/' + rutaLimpia;
+    return `http://localhost:5085${rutaLimpia}`;
+  };
+
   useEffect(() => {
-    // Usamos la instancia 'api' que ya tiene la baseURL configurada
     api.get(`/Propiedad/${id}`)
-      .then(response => {
-        setPropiedad(response.data);
+      .then(res => {
+        setPropiedad(res.data);
         setCargando(false);
       })
-      .catch(error => {
-        console.error("Error al traer la propiedad:", error);
-        mostrarErrorApi(error, 'cargar-propiedad-error');
+      .catch(err => {
+        mostrarErrorApi(err, 'cargar-detalle-error');
         setCargando(false);
       });
   }, [id]);
 
   const manejarReserva = async () => {
-    // Verificación de seguridad básica en el front
     if (!estaAutenticado) {
-      toast.error("Debes iniciar sesión para realizar una reserva.", { 
-        id: 'auth-error',
-        duration: 2000 
-      });
-      setTimeout(() => navigate('/login'), 2000); 
-      return;
+      toast.error("Inicia sesión para reservar.");
+      return navigate('/login');
     }
 
     if (!fechaEntrada || !fechaSalida) {
-      toast.error("Por favor, selecciona las fechas de llegada y salida.", { 
-        id: 'fechas-error',
-        duration: 2000 
-      });
-      return;
+      return toast.error("Selecciona las fechas de tu estancia.");
     }
 
     setProcesandoReserva(true);
 
     try {
-      // Coincide exactamente con el CrearReservaDto del backend
-      const datosReserva = {
-        PropiedadId: parseInt(id),
-        UsuarioInvitadoId: parseInt(usuario.id), // Ya no decodificamos el token a mano
-        FechaEntrada: fechaEntrada,
-        FechaSalida: fechaSalida
+      const guestIdRaw = usuario?.id || 
+                         usuario?.nameid || 
+                         usuario?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+      const guestId = parseInt(guestIdRaw);
+
+      if (isNaN(guestId)) {
+        toast.error("Error: Sesión no válida. Intenta loguearte de nuevo.");
+        setProcesandoReserva(false);
+        return;
+      }
+
+      const payload = {
+        propiedadId: parseInt(id),
+        fechaEntrada: fechaEntrada,
+        fechaSalida: fechaSalida,
+        usuarioInvitadoId: guestId
       };
 
-      // La instancia 'api' inyecta automáticamente el token JWT
-      const respuesta = await api.post('/Reservas', datosReserva);
-
-      const reservaIdCreada = respuesta.data.id || respuesta.data.Id; 
-
-      toast.success(
-        `¡Reserva confirmada!\nTu ID de reserva es: ${reservaIdCreada}`, 
-        { 
-          id: 'reserva-exito',
-          duration: 5000 
-        }
-      );
+      await api.post('/Reservas', payload);
       
-      // Redirección a la sección de viajes del usuario
-      navigate('/mis-viajes'); 
+      toast.success("¡Reserva confirmada! 🎉");
+      navigate('/mis-viajes');
+
+    } catch (err) {
+      console.error("ERROR 400:", err.response?.data);
+      const errorData = err.response?.data?.error;
       
-    } catch (error) {
-      console.error("Error al procesar reserva:", error.response?.data);
-      // Delegamos el manejo del error al utilitario centralizado
-      mostrarErrorApi(error, 'reserva-error');
+      if (errorData?.validationErrors) {
+        const primerError = Object.values(errorData.validationErrors).flat()[0];
+        toast.error(primerError);
+      } else {
+        mostrarErrorApi(err, 'reserva-error');
+      }
     } finally {
       setProcesandoReserva(false);
     }
   };
 
-  if (cargando) {
-    return (
-      <div className={styles.paginaContenedor}>
-        <Navbar />
-        <h2 style={{ textAlign: 'center', marginTop: '5rem' }}>Cargando detalles... 🏕️</h2>
-      </div>
-    );
-  }
+  if (cargando || cargandoAuth) return <div className={styles.loader}>Cargando...</div>;
+  if (!propiedad) return <div className={styles.errorMsg}>No se encontró la propiedad.</div>;
 
-  if (!propiedad) {
-    return (
-      <div className={styles.paginaContenedor}>
-        <Navbar />
-        <h2 style={{ textAlign: 'center', marginTop: '5rem' }}>No se encontró la propiedad 😢</h2>
-      </div>
-    );
-  }
-
-  // Lógica de imágenes (manteniendo tus fotos de prueba si el backend no trae suficientes)
-  const fotosDePrueba = [
-    "https://picsum.photos/id/1015/1000/600", 
-    "https://picsum.photos/id/1018/1000/600", 
-    "https://picsum.photos/id/1019/1000/600", 
-    "https://picsum.photos/id/1036/1000/600", 
-    "https://picsum.photos/id/1043/1000/600"
-  ];
-  const fotosAMostrar = propiedad.fotos && propiedad.fotos.length >= 5 
-    ? propiedad.fotos.map(f => f.url) 
-    : fotosDePrueba;
+  const titulo = propiedad.titulo || propiedad.Titulo;
+  const ubicacion = propiedad.ubicacion || propiedad.Ubicacion;
+  const capacidad = propiedad.capacidad || propiedad.Capacidad;
+  const precio = propiedad.precioPorNoche || propiedad.PrecioPorNoche;
+  const descripcion = propiedad.descripcion || propiedad.Descripcion;
+  const nombreAnfitrion = propiedad.host?.nombre || propiedad.Host?.Nombre || "Anfitrión Certificado";
 
   return (
-    <div className={styles.paginaContenedor}>
+    <div className={styles.pagina}>
       <Navbar />
-      <div className={styles.cuerpoPadding}>
-        <div className={styles.tituloContenedor}>
-          <h1 className={styles.titulo}>{propiedad.Titulo || propiedad.titulo}</h1>
-          <span className={styles.subtitulo}>★ 5.0 · {propiedad.Ubicacion || propiedad.ubicacion}</span>
-        </div>
+      <main className={styles.contenedorDetalle}>
+        <header className={styles.cabecera}>
+          <h1 className={styles.tituloPropiedad}>{titulo}</h1>
+          <div className={styles.metaInfo}>
+            <span>★ 5.0 · </span>
+            <span className={styles.enlaceUbicacion}>{ubicacion}</span>
+          </div>
+        </header>
 
-        <div className={styles.galeria}>
-          {fotosAMostrar.map((foto, index) => (
-            <img 
-              key={index} 
-              src={foto} 
-              alt={`Foto ${index}`} 
-              className={index === 0 ? styles.fotoPrincipal : styles.fotoSecundaria} 
-            />
-          ))}
-        </div>
+        <section className={styles.galeriaUnica}>
+          <img 
+            src={obtenerUrlImagen(propiedad.imagenUrl || propiedad.ImagenUrl)} 
+            alt={titulo} 
+            className={styles.imagenHero} 
+          />
+        </section>
 
-        <div className={styles.contenidoDividido}>
-          <div className={styles.columnaIzquierda}>
-            <h2 className={styles.anfitrion}>Anfitrión: Apex Propiedades</h2>
-            <p className={styles.descripcion}>
-              {propiedad.Descripcion || propiedad.descripcion || "Hermosa propiedad lista para hospedarte."}
-            </p>
+        <div className={styles.contenidoGrid}>
+          <div className={styles.infoLado}>
+            <div className={styles.perfilAnfitrion}>
+              <div>
+                <h2 className={styles.nombreHost}>Anfitrión: {nombreAnfitrion}</h2>
+                <p className={styles.detallesCorta}>Capacidad: {capacidad} huéspedes</p>
+              </div>
+              <div className={styles.avatarHost}>
+                {nombreAnfitrion.charAt(0).toUpperCase()}
+              </div>
+            </div>
+
+            <hr className={styles.separador} />
+            <p className={styles.descripcionLarga}>{descripcion}</p>
+            <hr className={styles.separador} />
+            
             <SeccionResenas propiedadId={id} />
           </div>
 
-          <div className={styles.columnaDerecha}>
+          <aside className={styles.reservaLado}>
             <div className={styles.tarjetaReserva}>
-              <div className={styles.precioReserva}>
-                ${propiedad.PrecioPorNoche || propiedad.precioPorNoche} <span>por noche</span>
+              <div className={styles.precioNoche}>
+                <strong>${precio}</strong> <span>noche</span>
               </div>
-              
-              <div className={styles.reservaInputs}>
-                <div className={styles.inputField}>
+
+              <div className={styles.contenedorFechas}>
+                <div className={styles.cajaFecha}>
                   <label>LLEGADA</label>
                   <input 
                     type="date" 
+                    min={minFecha}
                     value={fechaEntrada} 
                     onChange={(e) => setFechaEntrada(e.target.value)} 
                   />
                 </div>
-                <div className={styles.inputField}>
+                <div className={styles.cajaFecha}>
                   <label>SALIDA</label>
                   <input 
                     type="date" 
+                    min={fechaEntrada || minFecha}
                     value={fechaSalida} 
                     onChange={(e) => setFechaSalida(e.target.value)} 
                   />
@@ -175,16 +174,18 @@ export default function DetallePropiedad() {
               </div>
 
               <button 
-                className={styles.botonReservar} 
-                onClick={manejarReserva} 
+                className={styles.botonPrincipal} 
+                onClick={manejarReserva}
                 disabled={procesandoReserva}
               >
                 {procesandoReserva ? 'Procesando...' : 'Reservar'}
               </button>
+              
+              <p className={styles.avisoNoCobro}>No se te cobrará nada todavía</p>
             </div>
-          </div>
+          </aside>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,136 +1,74 @@
-/* DetallePropiedad.module.css */
-.paginaContenedor {
-    font-family: system-ui, -apple-system, sans-serif;
-    background-color: #f9f9f9;
-    min-height: 100vh;
-    padding-bottom: 5rem;
+/* src/Paginas/DetallePropiedad/DetallePropiedad.module.css */
+.pagina { background-color: white; min-height: 100vh; }
+
+.contenedorDetalle {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 20px;
 }
 
-.cuerpoPadding {
-    padding: 0 10%; /* Lo centramos un poco más que el inicio para que se vea elegante */
-    margin-top: 2rem;
+.cabecera { margin-bottom: 24px; }
+.tituloPropiedad { font-size: 26px; font-weight: 600; color: #222; }
+.metaInfo { font-size: 14px; margin-top: 4px; color: #484848; font-weight: 600; }
+.enlaceUbicacion { text-decoration: underline; }
+
+.galeriaUnica {
+  width: 100%;
+  height: 480px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 32px;
 }
 
-/* --- CABECERA --- */
-.tituloContenedor {
-    margin-bottom: 1.5rem;
+.imagenHero { width: 100%; height: 100%; object-fit: cover; }
+
+.contenidoGrid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 80px; }
+
+.perfilAnfitrion { display: flex; justify-content: space-between; align-items: center; }
+.nombreHost { font-size: 22px; font-weight: 600; margin: 0; }
+.detallesCorta { margin-top: 4px; color: #222; font-size: 16px; }
+.avatarHost {
+  width: 56px; height: 56px; background: #222; color: white;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 20px;
 }
 
-.titulo {
-    font-size: 2rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    color: #222;
-}
-
-.subtitulo {
-    font-size: 1rem;
-    color: #555;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-/* --- CUADRÍCULA DE FOTOS --- */
-.galeria {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 250px);
-    gap: 8px;
-    border-radius: 15px;
-    overflow: hidden;
-    margin-bottom: 3rem;
-}
-
-.fotoPrincipal {
-    grid-column: span 2;
-    grid-row: span 2;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    cursor: pointer;
-    transition: filter 0.2s;
-}
-
-.fotoSecundaria {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    cursor: pointer;
-    transition: filter 0.2s;
-}
-
-.fotoPrincipal:hover, .fotoSecundaria:hover {
-    filter: brightness(0.9);
-}
-
-/* --- CONTENIDO DIVIDIDO --- */
-.contenidoDividido {
-    display: flex;
-    justify-content: space-between;
-    gap: 5rem;
-    position: relative;
-}
-
-.columnaIzquierda {
-    flex: 6.5; /* Ocupa el 65% del ancho */
-}
-
-.anfitrion {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #ddd;
-}
-
-.descripcion {
-    line-height: 1.6;
-    color: #333;
-    font-size: 1rem;
-}
-
-/* --- TARJETA DE RESERVA (Derecha) --- */
-.columnaDerecha {
-    flex: 3.5; /* Ocupa el 35% del ancho */
-    position: relative;
-}
+.separador { border: 0; border-top: 1px solid #ddd; margin: 32px 0; }
+.descripcionLarga { font-size: 16px; line-height: 1.6; color: #222; white-space: pre-line; }
 
 .tarjetaReserva {
-    position: sticky;
-    top: 2rem; /* Se queda flotando a esta distancia del techo al hacer scroll */
-    background: white;
-    padding: 1.5rem;
-    border-radius: 15px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-    border: 1px solid #ddd;
+  position: sticky; top: 100px; padding: 24px;
+  border: 1px solid #ddd; border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  background: white;
 }
 
-.precioReserva {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
+.precioNoche { font-size: 22px; margin-bottom: 24px; }
+.precioNoche strong { font-weight: 600; }
+
+.contenedorFechas {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border: 1px solid #b0b0b0; border-radius: 8px; margin-bottom: 16px;
 }
 
-.precioReserva span {
-    font-size: 1rem;
-    font-weight: normal;
-    color: #555;
+.cajaFecha { padding: 10px; display: flex; flex-direction: column; }
+.cajaFecha:first-child { border-right: 1px solid #b0b0b0; }
+.cajaFecha label { font-size: 10px; font-weight: 800; color: #222; }
+.cajaFecha input { border: none; outline: none; font-size: 14px; background: transparent; cursor: pointer; }
+
+.botonPrincipal {
+  width: 100%; padding: 14px; border: none; border-radius: 8px;
+  background: linear-gradient(to right, #E61E4D 0%, #E31C5F 50%, #D70466 100%);
+  color: white; font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: opacity 0.2s;
 }
 
-.botonReservar {
-    width: 100%;
-    background-color: #FF5A5F;
-    color: white;
-    border: none;
-    padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 1rem;
-    transition: background-color 0.3s;
-}
+.botonPrincipal:hover { opacity: 0.9; }
+.avisoNoCobro { text-align: center; font-size: 14px; color: #717171; margin-top: 16px; }
 
-.botonReservar:hover {
-    background-color: #e0484d;
+.loader { text-align: center; margin-top: 5rem; font-size: 1.2rem; }
+
+@media (max-width: 800px) {
+  .contenidoGrid { grid-template-columns: 1fr; gap: 40px; }
+  .galeriaUnica { height: 300px; }
 }

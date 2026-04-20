@@ -1,130 +1,135 @@
 /* src/Components/NavBar.module.css */
-.navbarContainer {
-    padding: 1rem 5%;
-    box-sizing: border-box;
-    width: 100%;
-    /* Forzamos la fuente para todo el nav y sus hijos */
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+.fullNav {
+  background-color: #1a1a1a;
+  height: 80px;
+  width: 100% !important;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #333;
+  display: block !important;
+  text-align: left !important;
 }
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #222222;
-    color: #ffffff;
-    padding: 0.8rem 2rem;
-    border-radius: 40px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    box-sizing: border-box;
+.contentNav {
+  display: flex !important;
+  justify-content: space-between !important; /* 🛠️ SEPARA LOS EXTREMOS AL MÁXIMO */
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100%;
+  padding: 0 40px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
 }
 
-.logo {
-    font-size: 1.4rem;
-    font-weight: 800; /* Un poco más grueso para que destaque */
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    letter-spacing: -0.5px;
+.sectionLeft {
+  display: flex;
+  align-items: center;
 }
 
-.links {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
+.sectionRight {
+  display: flex;
+  align-items: center;
+  gap: 25px;
 }
 
-.link,
-.linkActive {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    letter-spacing: 0.2px; /* Espaciado fijo para evitar saltos */
-    transition: color 0.2s ease;
+/* ESTILOS DE ELEMENTOS */
+.logoLink { text-decoration: none; }
+
+.homeBadge {
+  background-color: #333;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #444;
+  transition: all 0.2s ease;
 }
 
-.link {
-    color: #b0b0b0;
+.homeBadge:hover {
+  background-color: #444;
+  border-color: #ff385c;
 }
 
-.link:hover {
-    color: #ffffff;
+.navLink {
+  color: #e4e4e4;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.linkActive {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.15);
-    padding: 0 1.2rem;
-    border-radius: 20px;
+.publishLink { color: #ff385c; }
+
+/* NUEVO BOTÓN DE CAMBIO DE MODO */
+.switchModeBtn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #e4e4e4;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.actions {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-}
-
-.publishAction {
-    color: #FF5A5F;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.publishAction:hover {
-    opacity: 0.8;
-}
-
-/* Botones con fuentes consistentes */
-.loginBtn, .logoutBtn {
-    font-family: inherit; 
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 20px;
-    transition: all 0.2s;
-}
-
-.loginBtn {
-    background-color: #ffffff;
-    color: #222222;
-    border: none;
-    padding: 0.5rem 1.2rem;
-}
-
-.loginBtn:hover {
-    background-color: #f0f0f0;
+.switchModeBtn:hover {
+  background-color: #333;
+  border-color: #e4e4e4;
+  color: white;
 }
 
 .logoutBtn {
-    background-color: transparent;
-    color: #ff4d4f;
-    border: 1px solid #ff4d4f;
-    padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid #ff385c;
+  color: #ff385c;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .logoutBtn:hover {
-    background-color: #ff4d4f;
-    color: #ffffff;
+  background-color: #ff385c;
+  color: white;
+}
+
+.navRegisterBtn {
+  background-color: #ff385c;
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-left: 1px solid #444;
+  padding-left: 20px;
+}
+
+.userName {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .avatar {
-    background-color: #444444;
-    color: #ffffff;
-    border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    border: 1px solid #666666;
+  width: 40px;
+  height: 40px;
+  background-color: #ff385c;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(255, 56, 92, 0.4);
 }
