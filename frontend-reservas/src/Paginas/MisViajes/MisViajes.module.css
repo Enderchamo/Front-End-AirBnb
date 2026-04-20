@@ -1,10 +1,148 @@
-.contenedor { background-color: #f7f7f7; min-height: 100vh; padding-bottom: 2rem; }
-.contenido { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.titulo { font-size: 2rem; margin-bottom: 2rem; color: #333; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-.tarjeta { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-.tarjetaHeader { display: flex; justify-content: space-between; margin-bottom: 1rem; }
-.badge { background: #eee; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
-.estado { color: #008489; font-weight: bold; }
-.hint { color: #FF5A5F; font-size: 0.9rem; margin-top: 1rem; font-weight: 500; }
-.error { color: #ff4d4f; }
+.contenedor { 
+    background-color: #f7f7f7; 
+    min-height: 100vh; 
+    padding-bottom: 2rem; 
+    /* Tipografía moderna y limpia */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.contenido { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 3rem 2rem; 
+}
+
+.titulo { 
+    font-size: 2rem; 
+    margin-bottom: 2rem; 
+    color: #222222; 
+    font-weight: 600;
+}
+
+.textoInfo {
+    color: #717171;
+    font-size: 1rem;
+}
+
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+    gap: 1.5rem; 
+}
+
+.tarjeta { 
+    background: white; 
+    border-radius: 12px; 
+    padding: 20px; 
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarjeta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.tarjetaHeader { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 1.2rem; 
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.badge { 
+    background: #f7f7f7; 
+    color: #222;
+    padding: 6px 10px; 
+    border-radius: 6px; 
+    font-weight: 600; 
+    font-size: 0.85rem; 
+    border: 1px solid #ddd;
+}
+
+.estado { 
+    font-weight: 600; 
+    font-size: 0.9rem;
+    color: #222;
+}
+
+/* Colores dinámicos para los estados */
+.estado.completada { color: #008a05; }
+.estado.cancelada { color: #c13515; }
+.estado.pendiente { color: #b28a00; }
+
+.infoReserva {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+}
+
+.infoReserva p {
+    margin: 0 0 8px 0;
+    color: #484848;
+    font-size: 0.95rem;
+}
+
+.infoReserva strong {
+    color: #222;
+    font-weight: 600;
+}
+
+/* --- ESTILOS DE LOS BOTONES --- */
+.accionesReserva {
+    display: flex;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.btnCompletar {
+    flex: 1;
+    background-color: #222222;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnCompletar:hover {
+    background-color: #000000;
+}
+
+.btnCancelar {
+    flex: 1;
+    background-color: transparent;
+    color: #222;
+    border: 1px solid #222;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnCancelar:hover {
+    background-color: #f7f7f7;
+}
+
+.hint { 
+    color: #717171; 
+    font-size: 0.85rem; 
+    margin-top: auto; 
+    padding-top: 1rem;
+    font-weight: 500; 
+    text-align: center;
+}
+
+.error { 
+    color: #c13515; 
+    font-weight: 500;
+}

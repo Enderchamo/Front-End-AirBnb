@@ -32,7 +32,8 @@ export default function CrearPropiedad() {
   }, [estaAutenticado, usuario, cargandoAuth, navigate]);
 
   const manejarCambio = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const manejarImagen = (e) => {
@@ -50,33 +51,33 @@ export default function CrearPropiedad() {
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
-    if (!imagen) return toast.error("Por favor, selecciona una imagen principal.");
     
+    if (!imagen) return toast.error("La imagen principal es obligatoria.");
+    
+    const hostIdRaw = usuario?.id || usuario?.Id;
+    if (!hostIdRaw) return toast.error("Sesión inválida. Reingresa.");
+
     setCargando(true);
 
     try {
-      // Extraemos el ID del usuario logueado
-      const hostIdRaw = usuario?.id || usuario?.Id;
-      
-      if (!hostIdRaw) {
-        toast.error("Error de sesión. Por favor reingresa.");
-        setCargando(false);
-        return;
-      }
-
-      // ✅ PAYLOAD CORREGIDO: Coincide exactamente con Swagger (camelCase)
       const payload = {
-        titulo: formData.titulo,
-        ubicacion: formData.ubicacion,
-        descripcion: formData.descripcion,
-        capacidad: parseInt(formData.capacidad),
-        precioPorNoche: parseFloat(formData.precioPorNoche),
+        titulo: formData.titulo.trim(),
+        ubicacion: formData.ubicacion.trim(),
+        descripcion: formData.descripcion.trim(),
+        capacidad: parseInt(formData.capacidad) || 1,
+        precioPorNoche: parseFloat(formData.precioPorNoche) || 0,
         hostId: parseInt(hostIdRaw) 
       };
 
       // 1. Crear la propiedad
       const respuestaPropiedad = await api.post('/Propiedad', payload);
-      const nuevaPropiedadId = respuestaPropiedad.data.id || respuestaPropiedad.data.Id; 
+      
+      // ✅ AJUSTE CLAVE: Extraemos el ID desde .data.data (formato ApiResponse)
+      const nuevaPropiedadId = respuestaPropiedad.data.data || respuestaPropiedad.data.id || respuestaPropiedad.data.Id; 
+
+      if (!nuevaPropiedadId) {
+        throw new Error("No se pudo obtener el ID de la propiedad creada.");
+      }
 
       // 2. Subir la imagen
       const imageData = new FormData();
@@ -90,65 +91,136 @@ export default function CrearPropiedad() {
       navigate('/mis-propiedades');
 
     } catch (error) {
-      console.error("Error 400 Detalle:", error.response?.data);
-      mostrarErrorApi(error, 'crear-propiedad-error');
+      console.error("Error al publicar:", error.response?.data);
+      
+      const res = error.response?.data;
+
+      // --- LÓGICA DE EXTRACCIÓN DE ERRORES PARA EL TOAST ---
+      if (!error.response) {
+        // Fallo de red (Servidor apagado)
+        toast.error("No hay conexión con el servidor 🔌");
+      } 
+      // ✅ LO ÚNICO QUE AGREGUÉ: Si el backend envía un mensaje directo (como el error 400 del título)
+      else if (typeof res === 'string') {
+        toast.error(res, { duration: 5000 });
+      }
+      else if (res && res.error) {
+        // Caso A: Tu Middleware de C# devuelve { ok: false, error: "mensaje" }
+        toast.error(`Validación: ${res.error}`, { duration: 5000 });
+      } 
+      else if (res && res.errors) {
+        // Caso B: Error estándar de .NET (ValidationProblemDetails)
+        const mensajes = Object.values(res.errors).flat();
+        mensajes.forEach(msg => toast.error(msg, { duration: 5000 }));
+      } 
+      else {
+        // Caso C: Fallo crítico o inesperado
+        mostrarErrorApi(error, 'crear-propiedad-error');
+      }
     } finally {
       setCargando(false);
     }
   };
 
-  if (cargandoAuth) return <p style={{ textAlign: 'center', marginTop: '3rem' }}>Verificando permisos...</p>;
+  if (cargandoAuth) return <p className={styles.loadingText}>Verificando...</p>;
 
   return (
     <div className={styles.container}>
       <Navbar />
       <div className={styles.formCard}>
-        <h2 className={styles.title}>Publica tu Cabaña</h2>
+        <header className={styles.formHeader}>
+          <h2 className={styles.title}>Publica tu espacio</h2>
+          <p className={styles.subtitle}>Asegúrate de cumplir con los requisitos mínimos de caracteres.</p>
+        </header>
         
         <form onSubmit={manejarEnvio} className={styles.form}>
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Título</label>
-            <input name="titulo" onChange={manejarCambio} required className={styles.input} />
+            <label className={styles.label}>Título del anuncio</label>
+            <input 
+              name="titulo" 
+              placeholder="Ej: Cabaña rústica con vista al río"
+              onChange={manejarCambio} 
+              required 
+              minLength={"10"}
+              maxLength="50"
+              className={styles.input} 
+            />
           </div>
 
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Ubicación</label>
-            <input name="ubicacion" onChange={manejarCambio} required className={styles.input} />
+            <label className={styles.label}>Ubicación exacta</label>
+            <input 
+              name="ubicacion" 
+              placeholder="Ej: Jarabacoa, La Vega, República Dominicana"
+              onChange={manejarCambio} 
+              required 
+              minLength="10" 
+              className={styles.input} 
+            />
+            <small className={styles.hint}>Mínimo 10 caracteres requeridos por el sistema.</small>
           </div>
 
           <div className={styles.inputGroup}>
             <label className={styles.label}>Descripción</label>
-            <textarea name="descripcion" onChange={manejarCambio} required className={`${styles.input} ${styles.textarea}`} />
+            <textarea 
+              name="descripcion" 
+              placeholder="Describe lo que hace único a tu espacio..."
+              onChange={manejarCambio} 
+              required 
+              minLength="20"
+              className={`${styles.input} ${styles.textarea}`} 
+            />
           </div>
 
           <div className={styles.row}>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Capacidad</label>
-              <input name="capacidad" type="number" min="1" onChange={manejarCambio} required className={styles.input} />
+              <input 
+                name="capacidad" 
+                type="number" 
+                min="1" 
+                defaultValue="1"
+                onChange={manejarCambio} 
+                required 
+                className={styles.input} 
+              />
             </div>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Precio/Noche ($)</label>
-              <input name="precioPorNoche" type="number" onChange={manejarCambio} required className={styles.input} />
+              <label className={styles.label}>Precio noche ($)</label>
+              <input 
+                name="precioPorNoche" 
+                type="number" 
+                min="0"
+                step="0.01"
+                onChange={manejarCambio} 
+                required 
+                className={styles.input} 
+              />
             </div>
           </div>
 
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Imagen de la propiedad</label>
+            <label className={styles.label}>Foto principal</label>
             {!previsualizacion ? (
               <div className={styles.uploadArea} onClick={() => fileInputRef.current.click()}>
-                <span>📸 Clic para subir foto</span>
+                <div className={styles.uploadContent}>
+                  <span className={styles.uploadIcon}>📸</span>
+                  <span>Haz clic para subir una foto</span>
+                </div>
                 <input type="file" accept="image/*" hidden ref={fileInputRef} onChange={manejarImagen} />
               </div>
             ) : (
               <div className={styles.previewContainer}>
-                <img src={previsualizacion} alt="Previa" className={styles.previewImage} />
-                <button type="button" onClick={quitarImagen} className={styles.removeBtn}>✕ Eliminar</button>
+                <img src={previsualizacion} alt="Vista previa" className={styles.previewImage} />
+                <button type="button" onClick={quitarImagen} className={styles.removeBtn}>
+                  Cambiar foto
+                </button>
               </div>
             )}
           </div>
 
           <button type="submit" disabled={cargando} className={styles.submitBtn}>
-            {cargando ? 'Publicando...' : 'Publicar Propiedad'}
+            {cargando ? 'Publicando...' : 'Publicar anuncio'}
           </button>
         </form>
       </div>
