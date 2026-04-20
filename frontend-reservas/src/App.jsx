@@ -9,6 +9,7 @@ import MisPropiedades from './Paginas/MisPropiedades/MisPropiedad.jsx';
 import EditarPropiedad from './Paginas/EditarPropiedad/EditarPropiedad.jsx';
 import CrearPropiedad from './Paginas/CrearPropiedad/CrearPropiedad.jsx';
 import { Toaster } from 'react-hot-toast';
+import ReservasRecibidas from './Paginas/ReservasRecibidas/ReservasRecibidas.jsx';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/propiedad/:id" element={<DetallePropiedad />} />
         <Route path="/mis-viajes" element={<MisViajes />} />
         <Route path="/mis-propiedades" element={<MisPropiedades />} />
+        <Route path="/reservas-recibidas" element={<ReservasRecibidas />} />
         
         {/* 2. Registramos la ruta para crear propiedades */}
         <Route path="/crear-propiedad" element={<CrearPropiedad />} />
