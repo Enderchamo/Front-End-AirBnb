@@ -38,6 +38,7 @@
   overflow: hidden;
   margin-bottom: 40px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background-color: #f7f7f7; /* Fondo gris para cuando no hay imagen */
 }
 
 .imagenHero {
@@ -49,6 +50,31 @@
 
 .imagenHero:hover {
   transform: scale(1.02);
+}
+
+/* 🛠️ NUEVOS ESTILOS PARA EL PLACEHOLDER VISUAL */
+.placeholderVisualCompleto {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px; 
+  color: #717171; 
+}
+
+.iconoLandscapePlaceholder {
+  width: 64px; 
+  height: 64px;
+  fill: #b0b0b0; 
+}
+
+.textoPlaceholderVisual {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  color: #717171; 
 }
 
 /* Layout del cuerpo */
@@ -155,6 +181,7 @@
   width: 100%;
   font-size: 14px;
   cursor: pointer;
+  background-color: transparent;
 }
 
 .btnConfirmar {

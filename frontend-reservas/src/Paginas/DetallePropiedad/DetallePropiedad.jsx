@@ -33,7 +33,6 @@ export default function DetallePropiedad() {
       });
   }, [id]);
 
-  // Lógica de validación de fechas
   const formatFecha = (fecha) => {
     const year = fecha.getFullYear();
     const month = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -85,16 +84,13 @@ export default function DetallePropiedad() {
   if (cargando) return <div className={styles.loader}>Cargando... 🏕️</div>;
   if (!propiedad) return <div className={styles.error}>No se encontró la propiedad 😢</div>;
 
-  // --- LÓGICA DE LA IMAGEN PRINCIPAL ---
+  // --- LÓGICA DE IMAGEN ---
   const URL_BASE_SERVIDOR = "http://localhost:5085"; 
+  const rutaImagen = propiedad.imagenUrl || propiedad.ImagenUrl;
   
-  // Extraemos la ruta, cubriendo las mayúsculas de C# y las minúsculas
-  const rutaImagen = propiedad.imagenUrl || propiedad.ImagenUrl || propiedad.fotoUrl || propiedad.FotoUrl;
-  
-  // Construimos la URL final absoluta
   const imagenFinal = rutaImagen 
     ? (rutaImagen.startsWith('http') ? rutaImagen : `${URL_BASE_SERVIDOR}${rutaImagen}`)
-    : "https://picsum.photos/id/1015/1200/600"; 
+    : null; 
 
   return (
     <div className={styles.pagina}>
@@ -108,17 +104,28 @@ export default function DetallePropiedad() {
           </div>
         </header>
 
-        {/* Galería de una sola imagen (Hero) */}
+        {/* Sección de Imagen Hero con el placeholder visual */}
         <section className={styles.contenedorImagenHero}>
-          <img 
-            src={imagenFinal} 
-            alt={`Vista de ${propiedad.titulo || propiedad.Titulo}`} 
-            className={styles.imagenHero} 
-            onError={(e) => { 
-              // Si la imagen real falla al cargar, colocamos la de prueba
-              e.target.src = "https://picsum.photos/id/1015/1200/600"; 
-            }}
-          />
+          {imagenFinal ? (
+            <img 
+              src={imagenFinal} 
+              alt={`Vista de ${propiedad.titulo || propiedad.Titulo}`} 
+              className={styles.imagenHero} 
+            />
+          ) : (
+            <div className={styles.placeholderVisualCompleto}>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 64 64" 
+                aria-hidden="true" 
+                focusable="false" 
+                className={styles.iconoLandscapePlaceholder}
+              >
+                <path d="M41.58 20a8 8 0 1 0-8-8 8 8 0 0 0 8 8zM5 48.01a6.38 6.38 0 0 0 1.91 4.59c1.51 1.51 3.29 2.4 5.09 2.4H52c3.08 0 5.82-1.48 7.33-4a6.29 6.29 0 0 0 .67-2.99v-2.1l-11.37-11.37a4 4 0 0 0-5.66 0L36 31.51l-7.37-7.37a4 4 0 0 0-5.66 0L5 42.01zm4-2.83l15.17-15.17a2 2 0 0 1 2.83 0l7.37 7.37-6.03 6.03a4 4 0 0 0 0 5.66l6.03 6.03L32.17 53.3a2 2 0 0 1-2.83 0l-15.17-15.17A2 2 0 0 1 9 45.18z"></path>
+              </svg>
+              <p className={styles.textoPlaceholderVisual}>No hay imagen disponible</p>
+            </div>
+          )}
         </section>
 
         <div className={styles.gridContenido}>
@@ -128,7 +135,7 @@ export default function DetallePropiedad() {
                 <h2>Anfitrión: {propiedad.nombreHost || "Apex Propiedades"}</h2>
                 <p>Host con excelente reputación en la zona</p>
               </div>
-              <img src="https://ui-avatars.com/api/?name=Apex+Host&background=ff385c&color=fff" alt="Host" className={styles.avatarHost} />
+              <img src={`https://ui-avatars.com/api/?name=${propiedad.nombreHost || 'Host'}&background=ff385c&color=fff`} alt="Host" className={styles.avatarHost} />
             </div>
 
             <hr className={styles.separador} />
