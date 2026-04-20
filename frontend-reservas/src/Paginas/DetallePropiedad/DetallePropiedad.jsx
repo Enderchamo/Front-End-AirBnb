@@ -1,3 +1,4 @@
+// src/Paginas/DetallePropiedad/DetallePropiedad.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './DetallePropiedad.module.css';
@@ -20,6 +21,8 @@ export default function DetallePropiedad() {
   const [fechaEntrada, setFechaEntrada] = useState('');
   const [fechaSalida, setFechaSalida] = useState('');
   const [procesandoReserva, setProcesandoReserva] = useState(false);
+  
+  const [llaveResenas, setLlaveResenas] = useState(0);
 
   useEffect(() => {
     api.get(`/Propiedad/${id}`)
@@ -28,7 +31,6 @@ export default function DetallePropiedad() {
         setCargando(false);
       })
       .catch(error => {
-        console.error("Error al traer la propiedad:", error);
         mostrarErrorApi(error, 'cargar-propiedad-error');
         setCargando(false);
       });
@@ -54,22 +56,20 @@ export default function DetallePropiedad() {
       fechaEntObj.setDate(fechaEntObj.getDate() + 1);
       minFechaSalida = formatFecha(fechaEntObj);
   }
-  // ---------------------------------------
 
   const manejarReserva = async () => {
     if (!estaAutenticado) {
-      toast.error("Debes iniciar sesión para realizar una reserva.", { id: 'auth-error', duration: 2000 });
+      toast.error("Debes iniciar sesión para realizar una reserva.", { id: 'auth-error' });
       setTimeout(() => navigate('/login'), 2000); 
       return;
     }
 
     if (!fechaEntrada || !fechaSalida) {
-      toast.error("Por favor, selecciona las fechas de llegada y salida.", { id: 'fechas-error', duration: 2000 });
+      toast.error("Por favor, selecciona las fechas.", { id: 'fechas-error' });
       return;
     }
 
     setProcesandoReserva(true);
-
     try {
       const datosReserva = {
         PropiedadId: parseInt(id),
@@ -77,117 +77,121 @@ export default function DetallePropiedad() {
         FechaEntrada: fechaEntrada,
         FechaSalida: fechaSalida
       };
-
       const respuesta = await api.post('/Reservas', datosReserva);
-      const reservaIdCreada = respuesta.data.id || respuesta.data.Id; 
-
-      toast.success(`¡Reserva confirmada!\nID: ${reservaIdCreada}`, { id: 'reserva-exito', duration: 5000 });
+      toast.success(`¡Reserva confirmada! ID: ${respuesta.data.id || respuesta.data.Id}`);
       navigate('/mis-viajes'); 
-      
     } catch (error) {
-      console.error("Error al procesar reserva:", error.response?.data);
       mostrarErrorApi(error, 'reserva-error');
     } finally {
       setProcesandoReserva(false);
     }
   };
 
-  if (cargando) {
-    return (
-      <div className={styles.paginaContenedor}>
-        <Navbar />
-        <h2 style={{ textAlign: 'center', marginTop: '5rem' }}>Cargando detalles... 🏕️</h2>
-      </div>
-    );
-  }
+  // --- LÓGICA DE RESEÑAS ---
+  const [comentario, setComentario] = useState('');
+  const [calificacion, setCalificacion] = useState(5);
 
-  if (!propiedad) {
-    return (
-      <div className={styles.paginaContenedor}>
-        <Navbar />
-        <h2 style={{ textAlign: 'center', marginTop: '5rem' }}>No se encontró la propiedad 😢</h2>
-      </div>
-    );
-  }
+  const enviarResena = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // 1. Obtenemos tus viajes usando el endpoint oficial de tu controlador
+      const resViajes = await api.get('/Reservas/mis-reservas'); 
+      
+      // 2. Buscamos la reserva COMPLETADA (Estado 2) para esta propiedad.
+      // Ordenamos por ID descendente para tomar siempre la más reciente.
+      const reservaCompletada = resViajes.data
+        .sort((a, b) => (b.id || b.Id) - (a.id || a.Id))
+        .find(r => 
+          (parseInt(r.propiedadId || r.PropiedadId) === parseInt(id)) && 
+          (r.estado === 2 || r.estado === 'Completada' || r.Estado === 2)
+        );
 
-  const fotosDePrueba = [
-    "https://picsum.photos/id/1015/1000/600", 
-    "https://picsum.photos/id/1018/1000/600", 
-    "https://picsum.photos/id/1019/1000/600", 
-    "https://picsum.photos/id/1036/1000/600", 
-    "https://picsum.photos/id/1043/1000/600"
-  ];
-  const fotosAMostrar = propiedad.fotos && propiedad.fotos.length >= 5 
+      if (!reservaCompletada) {
+        toast.error("No se encontró una reserva completada reciente para esta propiedad.");
+        return;
+      }
+
+      // 3. Enviamos el ID de la reserva específica al backend
+      const payload = {
+        reservaId: parseInt(reservaCompletada.id || reservaCompletada.Id),
+        calificacion: parseInt(calificacion),
+        comentario: comentario
+      };
+
+      await api.post('/Resena', payload);
+
+      toast.success("¡Tu opinión ha sido publicada!");
+      setComentario('');
+      setLlaveResenas(prev => prev + 1);
+
+    } catch (error) {
+      // Usamos el manejador global corregido
+      mostrarErrorApi(error, 'publicar-resena');
+    }
+  };
+
+  // ... (Renderizado de cargando y error igual que antes)
+  if (cargando) return <div className={styles.paginaContenedor}><Navbar /><h2 style={{ textAlign: 'center', marginTop: '5rem' }}>Cargando detalles... 🏕️</h2></div>;
+  if (!propiedad) return <div className={styles.paginaContenedor}><Navbar /><h2 style={{ textAlign: 'center', marginTop: '5rem' }}>No se encontró la propiedad 😢</h2></div>;
+
+  const fotosAMostrar = propiedad.fotos && propiedad.fotos.length >= 1 
     ? propiedad.fotos.map(f => f.url) 
-    : fotosDePrueba;
+    : ["https://picsum.photos/id/1015/1000/600"];
 
   return (
     <div className={styles.paginaContenedor}>
       <Navbar />
       <div className={styles.cuerpoPadding}>
         <div className={styles.tituloContenedor}>
-          <h1 className={styles.titulo}>{propiedad.Titulo || propiedad.titulo}</h1>
-          <span className={styles.subtitulo}>★ 5.0 · {propiedad.Ubicacion || propiedad.ubicacion}</span>
+          <h1 className={styles.titulo}>{propiedad.titulo || propiedad.Titulo}</h1>
+          <span className={styles.subtitulo}>★ 5.0 · {propiedad.ubicacion || propiedad.Ubicacion}</span>
         </div>
 
         <div className={styles.galeria}>
           {fotosAMostrar.map((foto, index) => (
-            <img 
-              key={index} 
-              src={foto} 
-              alt={`Foto ${index}`} 
-              className={index === 0 ? styles.fotoPrincipal : styles.fotoSecundaria} 
-            />
+            <img key={index} src={foto} alt={`Foto ${index}`} className={index === 0 ? styles.fotoPrincipal : styles.fotoSecundaria} />
           ))}
         </div>
 
         <div className={styles.contenidoDividido}>
           <div className={styles.columnaIzquierda}>
             <h2 className={styles.anfitrion}>Anfitrión: Apex Propiedades</h2>
-            <p className={styles.descripcion}>
-              {propiedad.Descripcion || propiedad.descripcion || "Hermosa propiedad lista para hospedarte."}
-            </p>
-            <SeccionResenas propiedadId={id} />
+            <p className={styles.descripcion}>{propiedad.descripcion || propiedad.Descripcion}</p>
+            <hr className={styles.separador} />
+
+            {estaAutenticado && (
+              <div className={styles.contenedorNuevaResena}>
+                <h3>¿Cómo fue tu experiencia?</h3>
+                <form onSubmit={enviarResena} className={styles.formResena}>
+                  <div className={styles.estrellasInput}>
+                    <label>Calificación:</label>
+                    <select value={calificacion} onChange={(e) => setCalificacion(e.target.value)}>
+                      <option value="5">⭐⭐⭐⭐⭐ (Excelente)</option>
+                      <option value="4">⭐⭐⭐⭐ (Muy buena)</option>
+                      <option value="3">⭐⭐⭐ (Normal)</option>
+                      <option value="2">⭐⭐ (Mala)</option>
+                      <option value="1">⭐ (Horrible)</option>
+                    </select>
+                  </div>
+                  <textarea placeholder="Cuéntanos tu experiencia..." value={comentario} onChange={(e) => setComentario(e.target.value)} required />
+                  <button type="submit" className={styles.btnPublicarResena}>Publicar opinión</button>
+                </form>
+              </div>
+            )}
+            <SeccionResenas key={llaveResenas} propiedadId={id} />
           </div>
 
           <div className={styles.columnaDerecha}>
             <div className={styles.tarjetaReserva}>
               <div className={styles.precioReserva}>
-                ${propiedad.PrecioPorNoche || propiedad.precioPorNoche} <span>por noche</span>
+                ${propiedad.precioPorNoche || propiedad.PrecioPorNoche} <span>por noche</span>
               </div>
-              
               <div className={styles.reservaInputs}>
-                <div className={styles.inputField}>
-                  <label>LLEGADA</label>
-                  <input 
-                    type="date" 
-                    value={fechaEntrada} 
-                    min={minFechaEntrada}
-                    onChange={(e) => {
-                      setFechaEntrada(e.target.value);
-                      if (fechaSalida && e.target.value >= fechaSalida) {
-                        setFechaSalida('');
-                      }
-                    }} 
-                  />
-                </div>
-                <div className={styles.inputField}>
-                  <label>SALIDA</label>
-                  <input 
-                    type="date" 
-                    value={fechaSalida} 
-                    min={minFechaSalida}
-                    disabled={!fechaEntrada}
-                    onChange={(e) => setFechaSalida(e.target.value)} 
-                  />
-                </div>
+                <div className={styles.inputField}><label>LLEGADA</label><input type="date" value={fechaEntrada} min={minFechaEntrada} onChange={(e) => setFechaEntrada(e.target.value)} /></div>
+                <div className={styles.inputField}><label>SALIDA</label><input type="date" value={fechaSalida} min={minFechaSalida} disabled={!fechaEntrada} onChange={(e) => setFechaSalida(e.target.value)} /></div>
               </div>
-
-              <button 
-                className={styles.botonReservar} 
-                onClick={manejarReserva} 
-                disabled={procesandoReserva}
-              >
+              <button className={styles.botonReservar} onClick={manejarReserva} disabled={procesandoReserva}>
                 {procesandoReserva ? 'Procesando...' : 'Reservar'}
               </button>
             </div>
