@@ -1,4 +1,3 @@
-// src/Paginas/CrearPropiedad/CrearPropiedad.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
@@ -26,7 +25,6 @@ export default function CrearPropiedad() {
   });
 
   useEffect(() => {
-    // Verificación de rol Host basada en el contexto
     if (!cargandoAuth && (!estaAutenticado || !usuario?.esHost)) {
       toast.error("Área restringida: Solo para Anfitriones.", { id: 'restriccion-host' });
       navigate('/');
@@ -57,32 +55,30 @@ export default function CrearPropiedad() {
     setCargando(true);
 
     try {
-      // 🛠️ SOLUCIÓN AL ERROR 400: Extracción segura del ID
-      // Buscamos el ID en las propiedades estándar de JWT que emite tu backend en .NET
-      const hostIdRaw = usuario?.id || usuario?.nameid || usuario?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      // Extraemos el ID del usuario logueado
+      const hostIdRaw = usuario?.id || usuario?.Id;
       
-      // Validación preventiva: Si aún así no tenemos ID, frenamos el envío para no causar el 400
       if (!hostIdRaw) {
-        toast.error("Error de sesión: No pudimos identificar tu usuario. Por favor vuelve a iniciar sesión.");
+        toast.error("Error de sesión. Por favor reingresa.");
         setCargando(false);
         return;
       }
 
-      // Estructura exacta de CrearPropiedadDto
+      // ✅ PAYLOAD CORREGIDO: Coincide exactamente con Swagger (camelCase)
       const payload = {
-        Titulo: formData.titulo,
-        Ubicacion: formData.ubicacion,
-        Descripcion: formData.descripcion,
-        Capacidad: parseInt(formData.capacidad),
-        PrecioPorNoche: parseFloat(formData.precioPorNoche),
-        HostId: parseInt(hostIdRaw) // 👈 Ahora sí enviamos el número correcto
+        titulo: formData.titulo,
+        ubicacion: formData.ubicacion,
+        descripcion: formData.descripcion,
+        capacidad: parseInt(formData.capacidad),
+        precioPorNoche: parseFloat(formData.precioPorNoche),
+        hostId: parseInt(hostIdRaw) 
       };
 
-      // 1. Crear la propiedad base
+      // 1. Crear la propiedad
       const respuestaPropiedad = await api.post('/Propiedad', payload);
       const nuevaPropiedadId = respuestaPropiedad.data.id || respuestaPropiedad.data.Id; 
 
-      // 2. Subir la imagen al endpoint especializado
+      // 2. Subir la imagen
       const imageData = new FormData();
       imageData.append('imagen', imagen); 
 
@@ -90,11 +86,11 @@ export default function CrearPropiedad() {
         headers: { 'Content-Type': 'multipart/form-data' } 
       });
 
-      toast.success("¡Cabaña y foto publicadas con éxito! 🏕️");
+      toast.success("¡Propiedad publicada con éxito! 🏕️");
       navigate('/mis-propiedades');
 
     } catch (error) {
-      console.error("Error al crear propiedad:", error);
+      console.error("Error 400 Detalle:", error.response?.data);
       mostrarErrorApi(error, 'crear-propiedad-error');
     } finally {
       setCargando(false);
@@ -111,93 +107,48 @@ export default function CrearPropiedad() {
         
         <form onSubmit={manejarEnvio} className={styles.form}>
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Título de la propiedad</label>
-            <input 
-              name="titulo" 
-              onChange={manejarCambio} 
-              required 
-              placeholder="Ej. Cabaña frente al lago" 
-              className={styles.input} 
-            />
+            <label className={styles.label}>Título</label>
+            <input name="titulo" onChange={manejarCambio} required className={styles.input} />
           </div>
 
           <div className={styles.inputGroup}>
             <label className={styles.label}>Ubicación</label>
-            <input 
-              name="ubicacion" 
-              onChange={manejarCambio} 
-              required 
-              placeholder="Ej. Jarabacoa, República Dominicana" 
-              className={styles.input} 
-            />
+            <input name="ubicacion" onChange={manejarCambio} required className={styles.input} />
           </div>
 
           <div className={styles.inputGroup}>
             <label className={styles.label}>Descripción</label>
-            <textarea 
-              name="descripcion" 
-              onChange={manejarCambio} 
-              required 
-              placeholder="Describe qué hace especial a tu propiedad..." 
-              className={`${styles.input} ${styles.textarea}`} 
-            />
+            <textarea name="descripcion" onChange={manejarCambio} required className={`${styles.input} ${styles.textarea}`} />
           </div>
 
           <div className={styles.row}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Capacidad (Huéspedes)</label>
-              <input 
-                name="capacidad" 
-                type="number" 
-                min="1" 
-                onChange={manejarCambio} 
-                required 
-                className={styles.input} 
-              />
+              <label className={styles.label}>Capacidad</label>
+              <input name="capacidad" type="number" min="1" onChange={manejarCambio} required className={styles.input} />
             </div>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Precio / Noche ($)</label>
-              <input 
-                name="precioPorNoche" 
-                type="number" 
-                step="1" 
-                onChange={manejarCambio} 
-                required 
-                className={styles.input} 
-              />
+              <label className={styles.label}>Precio/Noche ($)</label>
+              <input name="precioPorNoche" type="number" onChange={manejarCambio} required className={styles.input} />
             </div>
           </div>
 
           <div className={styles.inputGroup}>
-            <label className={styles.label}>Foto Principal de la Cabaña</label>
-            
+            <label className={styles.label}>Imagen de la propiedad</label>
             {!previsualizacion ? (
               <div className={styles.uploadArea} onClick={() => fileInputRef.current.click()}>
-                <span className={styles.uploadIcon}>📸</span>
-                <p className={styles.uploadText}>Haz clic aquí para seleccionar una foto</p>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  hidden 
-                  ref={fileInputRef} 
-                  onChange={manejarImagen} 
-                />
+                <span>📸 Clic para subir foto</span>
+                <input type="file" accept="image/*" hidden ref={fileInputRef} onChange={manejarImagen} />
               </div>
             ) : (
-              <div className={styles.previewSingle}>
+              <div className={styles.previewContainer}>
                 <img src={previsualizacion} alt="Previa" className={styles.previewImage} />
-                <button 
-                  type="button" 
-                  className={styles.removeBtn} 
-                  onClick={quitarImagen} 
-                  title="Eliminar foto"
-                >✕</button>
+                <button type="button" onClick={quitarImagen} className={styles.removeBtn}>✕ Eliminar</button>
               </div>
             )}
           </div>
 
           <button type="submit" disabled={cargando} className={styles.submitBtn}>
-            {cargando ? 'Guardando cabaña...' : 'Publicar Propiedad'}
+            {cargando ? 'Publicando...' : 'Publicar Propiedad'}
           </button>
         </form>
       </div>

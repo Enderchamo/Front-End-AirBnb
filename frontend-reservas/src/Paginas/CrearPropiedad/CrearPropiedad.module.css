@@ -1,171 +1,124 @@
-/* src/Paginas/CrearPropiedad/CrearPropiedad.module.css */
 .container {
-    background-color: #f9f9f9;
+    background-color: #f7f7f7;
     min-height: 100vh;
-    padding-bottom: 4rem;
-    font-family: system-ui, -apple-system, sans-serif;
+    padding-bottom: 40px;
 }
 
 .formCard {
-    max-width: 650px;
-    margin: 3rem auto;
-    padding: 3rem;
-    background-color: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    padding: 32px;
+    border-radius: 12px; /* Menos redondeado, más elegante */
+    border: 1px solid #dddddd;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .title {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+    color: #222;
     text-align: center;
-    margin-bottom: 2.5rem;
-    color: #222222;
-    font-size: 2.2rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-}
-
-.inputGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
+    gap: 20px;
 }
 
 .row {
     display: flex;
-    gap: 1.5rem;
+    gap: 16px;
 }
 
-.row .inputGroup {
-    flex: 1; 
+.inputGroup {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .label {
+    font-size: 0.9rem;
     font-weight: 600;
-    font-size: 0.95rem;
     color: #484848;
 }
 
 .input {
-    padding: 1rem 1.2rem;
-    border-radius: 12px;
-    border: 1px solid #dcdcdc;
+    padding: 12px;
+    border: 1px solid #b0b0b0;
+    border-radius: 8px; /* Redondez sutil para inputs */
     font-size: 1rem;
-    color: #222222;
-    background-color: #ffffff;
-    transition: all 0.2s ease;
-    font-family: inherit;
     outline: none;
+    transition: border 0.2s;
 }
 
 .input:focus {
-    border-color: #222222;
-    box-shadow: 0 0 0 1.5px #222222;
-}
-
-.input::placeholder {
-    color: #aaaaaa;
+    border-color: #222;
 }
 
 .textarea {
-    min-height: 120px;
-    resize: vertical;
+    height: 100px;
+    resize: none;
 }
 
-.submitBtn {
-    margin-top: 1.5rem;
-    padding: 1.2rem;
-    background-color: #FF5A5F;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.submitBtn:hover:not(:disabled) {
-    background-color: #e34c51;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
-}
-
-.submitBtn:disabled {
-    background-color: #ffb3b5;
-    cursor: not-allowed;
-}
-
-/* --- ZONA DE SUBIDA DE IMAGEN --- */
 .uploadArea {
-    border: 2px dashed #dcdcdc;
-    border-radius: 12px;
-    padding: 2.5rem 1rem;
+    border: 2px dashed #b0b0b0;
+    padding: 30px;
     text-align: center;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    background-color: #fafafa;
+    color: #717171;
+    transition: background 0.2s;
 }
 
 .uploadArea:hover {
-    border-color: #FF5A5F;
-    background-color: #fff1f1;
+    background-color: #f1f1f1;
 }
 
-.uploadIcon {
-    font-size: 2.5rem;
-    display: block;
-    margin-bottom: 0.8rem;
-}
-
-.uploadText {
-    color: #717171;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.previewSingle {
+.previewContainer {
     position: relative;
-    width: 100%;
-    height: 250px;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid #eee;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .previewImage {
     width: 100%;
-    height: 100%;
+    height: 200px;
     object-fit: cover;
-    display: block;
 }
 
 .removeBtn {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(255, 255, 255, 0.95);
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
     border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 6px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ff4d4f;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease;
+    font-weight: 600;
+    color: #c13515;
 }
 
-.removeBtn:hover {
-    transform: scale(1.1);
+.submitBtn {
+    background-color: #E61E4D;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.submitBtn:hover {
+    background-color: #D70466;
+}
+
+.submitBtn:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
 }

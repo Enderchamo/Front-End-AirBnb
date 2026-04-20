@@ -5,7 +5,7 @@ import Navbar from '../../Components/NavBar';
 import SeccionResenas from '../../Components/SeccionResenas';
 import toast from 'react-hot-toast';
 
-// Importaciones del nuevo estándar
+// Importaciones del estándar
 import api from '../../api/axios'; 
 import { useAuth } from '../../Context/AuthContext';
 import { mostrarErrorApi } from '../src/utils/manejarErrorApi';
@@ -13,7 +13,7 @@ import { mostrarErrorApi } from '../src/utils/manejarErrorApi';
 export default function DetallePropiedad() {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  const { usuario, estaAutenticado } = useAuth(); // Obtenemos el estado de auth global
+  const { usuario, estaAutenticado } = useAuth(); 
   
   const [propiedad, setPropiedad] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -22,7 +22,6 @@ export default function DetallePropiedad() {
   const [procesandoReserva, setProcesandoReserva] = useState(false);
 
   useEffect(() => {
-    // Usamos la instancia 'api' que ya tiene la baseURL configurada
     api.get(`/Propiedad/${id}`)
       .then(response => {
         setPropiedad(response.data);
@@ -35,55 +34,58 @@ export default function DetallePropiedad() {
       });
   }, [id]);
 
+  // --- LÓGICA DE VALIDACIÓN DE FECHAS ---
+  const formatFecha = (fecha) => {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const hoy = new Date();
+  const manana = new Date(hoy);
+  manana.setDate(manana.getDate() + 1); 
+  const minFechaEntrada = formatFecha(manana);
+
+  let minFechaSalida = minFechaEntrada;
+  if (fechaEntrada) {
+      const [year, month, day] = fechaEntrada.split('-');
+      const fechaEntObj = new Date(year, month - 1, day);
+      fechaEntObj.setDate(fechaEntObj.getDate() + 1);
+      minFechaSalida = formatFecha(fechaEntObj);
+  }
+  // ---------------------------------------
+
   const manejarReserva = async () => {
-    // Verificación de seguridad básica en el front
     if (!estaAutenticado) {
-      toast.error("Debes iniciar sesión para realizar una reserva.", { 
-        id: 'auth-error',
-        duration: 2000 
-      });
+      toast.error("Debes iniciar sesión para realizar una reserva.", { id: 'auth-error', duration: 2000 });
       setTimeout(() => navigate('/login'), 2000); 
       return;
     }
 
     if (!fechaEntrada || !fechaSalida) {
-      toast.error("Por favor, selecciona las fechas de llegada y salida.", { 
-        id: 'fechas-error',
-        duration: 2000 
-      });
+      toast.error("Por favor, selecciona las fechas de llegada y salida.", { id: 'fechas-error', duration: 2000 });
       return;
     }
 
     setProcesandoReserva(true);
 
     try {
-      // Coincide exactamente con el CrearReservaDto del backend
       const datosReserva = {
         PropiedadId: parseInt(id),
-        UsuarioInvitadoId: parseInt(usuario.id), // Ya no decodificamos el token a mano
+        UsuarioInvitadoId: parseInt(usuario.id),
         FechaEntrada: fechaEntrada,
         FechaSalida: fechaSalida
       };
 
-      // La instancia 'api' inyecta automáticamente el token JWT
       const respuesta = await api.post('/Reservas', datosReserva);
-
       const reservaIdCreada = respuesta.data.id || respuesta.data.Id; 
 
-      toast.success(
-        `¡Reserva confirmada!\nTu ID de reserva es: ${reservaIdCreada}`, 
-        { 
-          id: 'reserva-exito',
-          duration: 5000 
-        }
-      );
-      
-      // Redirección a la sección de viajes del usuario
+      toast.success(`¡Reserva confirmada!\nID: ${reservaIdCreada}`, { id: 'reserva-exito', duration: 5000 });
       navigate('/mis-viajes'); 
       
     } catch (error) {
       console.error("Error al procesar reserva:", error.response?.data);
-      // Delegamos el manejo del error al utilitario centralizado
       mostrarErrorApi(error, 'reserva-error');
     } finally {
       setProcesandoReserva(false);
@@ -108,7 +110,6 @@ export default function DetallePropiedad() {
     );
   }
 
-  // Lógica de imágenes (manteniendo tus fotos de prueba si el backend no trae suficientes)
   const fotosDePrueba = [
     "https://picsum.photos/id/1015/1000/600", 
     "https://picsum.photos/id/1018/1000/600", 
@@ -161,7 +162,13 @@ export default function DetallePropiedad() {
                   <input 
                     type="date" 
                     value={fechaEntrada} 
-                    onChange={(e) => setFechaEntrada(e.target.value)} 
+                    min={minFechaEntrada}
+                    onChange={(e) => {
+                      setFechaEntrada(e.target.value);
+                      if (fechaSalida && e.target.value >= fechaSalida) {
+                        setFechaSalida('');
+                      }
+                    }} 
                   />
                 </div>
                 <div className={styles.inputField}>
@@ -169,6 +176,8 @@ export default function DetallePropiedad() {
                   <input 
                     type="date" 
                     value={fechaSalida} 
+                    min={minFechaSalida}
+                    disabled={!fechaEntrada}
                     onChange={(e) => setFechaSalida(e.target.value)} 
                   />
                 </div>

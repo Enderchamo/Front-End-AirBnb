@@ -1,66 +1,119 @@
-
 .card {
-    position: relative;
     background-color: #fff;
-    border-radius: 25px;
+    border-radius: 12px; /* Menos redondeado, más elegante */
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
+    height: 100%; /* Para que todas midan lo mismo en el grid */
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.imageWrapper {
+    position: relative;
+    width: 100%;
+    height: 200px;
 }
 
 .image {
     width: 100%;
-    height: 220px;
+    height: 100%;
     object-fit: cover;
 }
 
+/* Badge de calificación moderno */
+.ratingBadge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    color: #222;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.infoContent {
+    padding: 1rem;
+    flex-grow: 1; /* Esto empuja los botones hacia abajo */
+}
+
 .title {
-    padding: 1rem 1.2rem 0 1.2rem;
-    margin: 0 0 0.2rem 0;
-    font-size: 1.2rem;
+    margin: 0 0 0.4rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222;
+    /* Limita a 1 línea si es muy largo */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .details {
-    padding: 0 1.2rem 1rem 1.2rem;
     margin: 0;
-    color: #666;
-    font-size: 0.95rem;
-    flex: 1;
-}
-
-.rating {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #fff;
-    padding: 0.3rem 0.6rem;
-    border-radius: 15px;
-    font-weight: bold;
+    color: #717171;
     font-size: 0.9rem;
+    line-height: 1.4;
 }
 
-.button {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    background-color: #333;
-    color: #fff;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 1.3rem;
+/* Alineación de botones */
+.footerActions {
+    padding: 0 1rem 1rem 1rem;
+    margin-top: auto; /* Ancla los botones al fondo de la tarjeta */
+}
+
+.adminActions {
+    display: flex;
+    gap: 10px;
+}
+
+.editBtn, .deleteBtn, .viewButton {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    text-align: center;
+    border: 1px solid #ddd;
 }
 
-.button:hover {
-    background-color: #FF5A5F;
+.editBtn {
+    background-color: white;
+    color: #222;
+}
+
+.editBtn:hover {
+    background-color: #f7f7f7;
+    border-color: #222;
+}
+
+.deleteBtn {
+    background-color: #fff1f1;
+    color: #c13515;
+    border-color: #ffcfcf;
+}
+
+.deleteBtn:hover {
+    background-color: #c13515;
+    color: white;
+    border-color: #c13515;
+}
+
+.viewButton {
+    background-color: #222;
+    color: white;
+    width: 100%;
 }

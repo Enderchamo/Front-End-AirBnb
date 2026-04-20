@@ -1,4 +1,3 @@
-// src/Components/PropertyCard.jsx
 import styles from './PropertyCard.module.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +8,7 @@ export default function PropertyCard({ id, image, title, details, rating, onEdit
     <div className={styles.card} onClick={() => navigate(`/propiedad/${id}`)}>
       <div className={styles.imageWrapper}>
         <img src={image} alt={title} className={styles.image} />
+        {/* Calificación flotante sobre la imagen */}
         <div className={styles.ratingBadge}>★ {rating}</div>
       </div>
 
@@ -24,7 +24,7 @@ export default function PropertyCard({ id, image, title, details, rating, onEdit
               <button 
                 className={styles.editBtn} 
                 onClick={(e) => {
-                  e.stopPropagation(); // Evita navegar al detalle
+                  e.stopPropagation(); 
                   onEdit(id);
                 }}
               >
@@ -35,7 +35,7 @@ export default function PropertyCard({ id, image, title, details, rating, onEdit
               <button 
                 className={styles.deleteBtn} 
                 onClick={(e) => {
-                  e.stopPropagation(); // Evita navegar al detalle
+                  e.stopPropagation(); 
                   onDelete(id, title);
                 }}
               >
@@ -44,7 +44,7 @@ export default function PropertyCard({ id, image, title, details, rating, onEdit
             )}
           </div>
         ) : (
-          <button className={styles.viewButton}> Ver detalles → </button>
+          <button className={styles.viewButton}>Ver detalles →</button>
         )}
       </div>
     </div>
