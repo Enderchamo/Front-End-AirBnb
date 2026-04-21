@@ -1,3 +1,4 @@
+// src/Paginas/MisViajes/MisViajes.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
@@ -10,7 +11,9 @@ export default function MisViajes() {
   const [reservas, setReservas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const { estaAutenticado } = useAuth();
+  
+  // 🛠️ IMPORTANTE: Extraemos 'cargandoAuth'
+  const { estaAutenticado, cargandoAuth } = useAuth(); 
   const navigate = useNavigate();
 
   const cargarMisViajes = async () => {
@@ -26,34 +29,37 @@ export default function MisViajes() {
   };
 
   useEffect(() => {
+    // 🛠️ PASO 1: Si el contexto aún está verificando el token, no hacemos nada
+    if (cargandoAuth) return;
+
+    // 🛠️ PASO 2: Si ya terminó de cargar y NO está autenticado, ahí sí redirigimos
     if (!estaAutenticado) {
       navigate('/login');
       return;
     }
-    cargarMisViajes();
-  }, [estaAutenticado, navigate]);
 
-  // --- FUNCIÓN DE ACCIÓN CON PATCH Y LOGS ---
+    // 🛠️ PASO 3: Si está autenticado, cargamos los datos
+    cargarMisViajes();
+  }, [estaAutenticado, cargandoAuth, navigate]);
+
+  // 🛠️ PASO 4: Mientras el AuthContext verifica el token, mostramos un estado de espera
+  // Esto evita que el componente intente cargar datos sin tener el token listo.
+  if (cargandoAuth) {
+    return <div className={styles.contenedor}><p className={styles.textoInfo}>Verificando sesión...</p></div>;
+  }
+
   const manejarAccion = async (id, accion) => {
     console.log(`%c [DEBUG] Ejecutando PATCH para: ${accion}`, 'background: #222; color: #3498db; padding: 2px 5px;');
     const loadingToast = toast.loading(`Procesando ${accion}...`);
     
     try {
-      // Usamos api.patch según la definición de tu backend
       const url = `/Reservas/${id}/${accion}`;
-      console.log(`[DEBUG] URL: ${api.defaults.baseURL}${url}`);
-      
       const respuesta = await api.patch(url);
       
-      console.log("%c [DEBUG] Éxito:", 'color: #2ecc71', respuesta.status);
       toast.success(`Reserva ${accion === 'cancelar' ? 'cancelada' : 'completada'}`, { id: loadingToast });
       cargarMisViajes();
     } catch (err) {
-      console.error("%c [DEBUG] Error en PATCH:", 'color: #e74c3c', {
-        status: err.response?.status,
-        data: err.response?.data
-      });
-      toast.error(`Error al ${accion}. Revisa la consola.`, { id: loadingToast });
+      toast.error(`Error al ${accion}.`, { id: loadingToast });
     }
   };
 
@@ -89,23 +95,9 @@ export default function MisViajes() {
               
               {reserva.estado !== 'Completada' && reserva.estado !== 'Cancelada' && (
                 <div className={styles.accionesReserva}>
-                  <button 
-                    onClick={() => manejarAccion(reserva.id, 'completar')} 
-                    className={styles.btnCompletar}
-                  >
-                    Completar
-                  </button>
-                  <button 
-                    onClick={() => manejarAccion(reserva.id, 'cancelar')} 
-                    className={styles.btnCancelar}
-                  >
-                    Cancelar
-                  </button>
+                  <button onClick={() => manejarAccion(reserva.id, 'completar')} className={styles.btnCompletar}>Completar</button>
+                  <button onClick={() => manejarAccion(reserva.id, 'cancelar')} className={styles.btnCancelar}>Cancelar</button>
                 </div>
-              )}
-
-              {reserva.estado === 'Completada' && (
-                 <p className={styles.resenaLink}>Reserva finalizada con éxito</p>
               )}
             </div>
           ))}
