@@ -1,4 +1,3 @@
-// src/Paginas/MisPropiedades/MisPropiedad.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
@@ -12,6 +11,11 @@ import toast from 'react-hot-toast';
 export default function MisPropiedades() {
   const [propiedades, setPropiedades] = useState([]);
   const [cargando, setCargando] = useState(true);
+  
+  // 🛠️ NUEVOS ESTADOS PARA BLOQUEO (Sin tocar los anteriores)
+  const [bloqueoActivo, setBloqueoActivo] = useState(null); 
+  const [fechasBloqueo, setFechasBloqueo] = useState({ inicio: '', fin: '' });
+
   const { usuario, estaAutenticado, cargandoAuth } = useAuth();
   const navigate = useNavigate();
 
@@ -23,9 +27,11 @@ export default function MisPropiedades() {
 
     const cargarMisPropiedades = async () => {
       try {
+        // Mantenemos tu ruta original /Buscar
         const respuesta = await api.get('/Propiedad/Buscar');
-        // Filtramos por el ID del usuario logueado (usando nameid que es el estándar de tu token)
         const userId = usuario?.id || usuario?.nameid;
+        
+        // Mantenemos tu lógica de filtrado exacta
         const misProps = respuesta.data.filter(p => String(p.hostId || p.HostId) === String(userId));
         setPropiedades(misProps);
       } catch (err) {
@@ -38,9 +44,34 @@ export default function MisPropiedades() {
     if (usuario) cargarMisPropiedades();
   }, [usuario, estaAutenticado, cargandoAuth, navigate]);
 
+  // 🛠️ NUEVA FUNCIÓN PARA BLOQUEAR (Conecta con tu backend)
+  const manejarConfirmarBloqueo = async (e) => {
+    e.preventDefault();
+    if (!fechasBloqueo.inicio || !fechasBloqueo.fin) {
+      return toast.error("Selecciona ambas fechas.");
+    }
+
+    try {
+      await api.post('/FechaBloqueada', {
+        propiedadId: bloqueoActivo.id,
+        fechaInicio: fechasBloqueo.inicio,
+        fechaFin: fechasBloqueo.fin
+      });
+      toast.success(`Fechas bloqueadas para: ${bloqueoActivo.titulo}`);
+      setBloqueoActivo(null);
+      setFechasBloqueo({ inicio: '', fin: '' });
+    } catch (err) {
+      mostrarErrorApi(err);
+    }
+  };
+
+  const abrirPanelBloqueo = (id, titulo) => {
+    setBloqueoActivo({ id, titulo });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const manejarBorrar = async (id, titulo) => {
     if (!window.confirm(`¿Estás seguro de que deseas eliminar "${titulo}"?`)) return;
-
     try {
       await api.delete(`/Propiedad/${id}`);
       setPropiedades(propiedades.filter(p => p.id !== id));
@@ -52,7 +83,7 @@ export default function MisPropiedades() {
 
   const manejarEditar = (id) => navigate(`/editar-propiedad/${id}`);
 
-  // Helper para la URL de imagen
+  // Mantenemos tu Helper de imagen intacto
   const obtenerUrlImagen = (ruta) => {
     if (!ruta) return 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c';
     if (ruta.startsWith('http')) return ruta;
@@ -70,6 +101,28 @@ export default function MisPropiedades() {
             Publicar Nueva
           </button>
         </div>
+
+        {/* 🛠️ PANEL DE BLOQUEO (Se inserta aquí) */}
+        {bloqueoActivo && (
+          <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', border: '2px solid #ff385c', marginBottom: '25px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginTop: 0 }}>Bloquear fechas: {bloqueoActivo.titulo}</h3>
+            <form onSubmit={manejarConfirmarBloqueo} style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '5px' }}>Desde:</label>
+                <input type="date" value={fechasBloqueo.inicio} onChange={(e) => setFechasBloqueo({...fechasBloqueo, inicio: e.target.value})} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '5px' }}>Hasta:</label>
+                <input type="date" value={fechasBloqueo.fin} onChange={(e) => setFechasBloqueo({...fechasBloqueo, fin: e.target.value})} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" style={{ backgroundColor: '#ff385c', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Confirmar Bloqueo</button>
+                <button type="button" onClick={() => setBloqueoActivo(null)} style={{ background: 'none', border: 'none', color: '#717171', cursor: 'pointer', textDecoration: 'underline' }}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        )}
+
         <div className={styles.grid}>
           {propiedades.map(prop => (
             <PropertyCard 
@@ -81,6 +134,7 @@ export default function MisPropiedades() {
               image={obtenerUrlImagen(prop.imagenUrl || prop.ImagenUrl)}
               onEdit={manejarEditar}
               onDelete={manejarBorrar}
+              onBlock={abrirPanelBloqueo} // 🛠️ Pasamos la función a la tarjeta
             />
           ))}
         </div>

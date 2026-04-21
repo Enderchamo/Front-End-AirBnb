@@ -117,3 +117,25 @@
     color: white;
     width: 100%;
 }
+.editBtn, .deleteBtn, .viewButton, .blockBtn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.blockBtn {
+    background-color: #222; /* Color negro elegante */
+    color: white;
+    border-color: #222;
+}
+
+.blockBtn:hover {
+    background-color: #484848;
+    border-color: #484848;
+}

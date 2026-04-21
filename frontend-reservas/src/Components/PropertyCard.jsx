@@ -1,14 +1,13 @@
 import styles from './PropertyCard.module.css';
 import { useNavigate } from 'react-router-dom';
 
-export default function PropertyCard({ id, image, title, details, rating, onEdit, onDelete }) { 
+export default function PropertyCard({ id, image, title, details, rating, onEdit, onDelete, onBlock }) { 
   const navigate = useNavigate(); 
 
   return (
     <div className={styles.card} onClick={() => navigate(`/propiedad/${id}`)}>
       <div className={styles.imageWrapper}>
         <img src={image} alt={title} className={styles.image} />
-        {/* Calificación flotante sobre la imagen */}
         <div className={styles.ratingBadge}>★ {rating}</div>
       </div>
 
@@ -18,27 +17,29 @@ export default function PropertyCard({ id, image, title, details, rating, onEdit
       </div>
 
       <div className={styles.footerActions}>
-        {onEdit || onDelete ? (
+        {(onEdit || onDelete || onBlock) ? (
           <div className={styles.adminActions}>
             {onEdit && (
-              <button 
-                className={styles.editBtn} 
-                onClick={(e) => {
-                  e.stopPropagation(); 
-                  onEdit(id);
-                }}
-              >
+              <button className={styles.editBtn} onClick={(e) => { e.stopPropagation(); onEdit(id); }}>
                 Editar
               </button>
             )}
-            {onDelete && (
+
+            {/* Botón de Bloqueo añadido */}
+            {onBlock && (
               <button 
-                className={styles.deleteBtn} 
+                className={styles.blockBtn} 
                 onClick={(e) => {
                   e.stopPropagation(); 
-                  onDelete(id, title);
+                  onBlock(id, title);
                 }}
               >
+                Bloquear
+              </button>
+            )}
+
+            {onDelete && (
+              <button className={styles.deleteBtn} onClick={(e) => { e.stopPropagation(); onDelete(id, title); }}>
                 Eliminar
               </button>
             )}
