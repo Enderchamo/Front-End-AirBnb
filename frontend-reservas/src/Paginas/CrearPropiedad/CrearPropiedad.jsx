@@ -91,32 +91,8 @@ export default function CrearPropiedad() {
       navigate('/mis-propiedades');
 
     } catch (error) {
-      console.error("Error al publicar:", error.response?.data);
-      
-      const res = error.response?.data;
-
-      // --- LÓGICA DE EXTRACCIÓN DE ERRORES PARA EL TOAST ---
-      if (!error.response) {
-        // Fallo de red (Servidor apagado)
-        toast.error("No hay conexión con el servidor 🔌");
-      } 
-      // ✅ LO ÚNICO QUE AGREGUÉ: Si el backend envía un mensaje directo (como el error 400 del título)
-      else if (typeof res === 'string') {
-        toast.error(res, { duration: 5000 });
-      }
-      else if (res && res.error) {
-        // Caso A: Tu Middleware de C# devuelve { ok: false, error: "mensaje" }
-        toast.error(`Validación: ${res.error}`, { duration: 5000 });
-      } 
-      else if (res && res.errors) {
-        // Caso B: Error estándar de .NET (ValidationProblemDetails)
-        const mensajes = Object.values(res.errors).flat();
-        mensajes.forEach(msg => toast.error(msg, { duration: 5000 }));
-      } 
-      else {
-        // Caso C: Fallo crítico o inesperado
-        mostrarErrorApi(error, 'crear-propiedad-error');
-      }
+      // 🛠️ ¡Mira qué limpio queda esto ahora!
+      mostrarErrorApi(error, "No se pudo publicar la propiedad. Revisa los datos.");
     } finally {
       setCargando(false);
     }

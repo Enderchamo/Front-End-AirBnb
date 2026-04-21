@@ -87,7 +87,9 @@ export default function MisViajes() {
               </div>
               
               <div className={styles.infoReserva}>
-                <p className={styles.propiedadNombre}>Propiedad: {reserva.propiedadId}</p>
+                <p className={styles.propiedadNombre}>
+                  Propiedad: {reserva.propiedadTitulo || reserva.propiedadId}
+                </p>
                 <p className={styles.fechas}>
                     {new Date(reserva.fechaEntrada).toLocaleDateString()} - {new Date(reserva.fechaSalida).toLocaleDateString()}
                 </p>

@@ -44,12 +44,10 @@ export default function MisPropiedades() {
 
   // --- Lógica de Gestión de Bloqueos ---
 
-  // 1. Abrir panel y cargar bloqueos actuales
   const abrirPanelBloqueo = async (id, titulo) => {
     setBloqueoActivo({ id, titulo });
     try {
       const res = await api.get(`/FechaBloqueada/propiedad/${id}`);
-      // Guardamos los datos asegurando que sea un array
       setBloqueosExistentes(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error al cargar bloqueos", err);
@@ -58,7 +56,6 @@ export default function MisPropiedades() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 2. Crear un nuevo bloqueo
   const manejarConfirmarBloqueo = async (e) => {
     e.preventDefault();
     if (!fechasBloqueo.inicio || !fechasBloqueo.fin) return toast.error("Selecciona ambas fechas.");
@@ -71,7 +68,6 @@ export default function MisPropiedades() {
       });
       toast.success("Fechas bloqueadas correctamente.");
       
-      // Refrescamos la lista inmediatamente
       const res = await api.get(`/FechaBloqueada/propiedad/${bloqueoActivo.id}`);
       setBloqueosExistentes(res.data);
       setFechasBloqueo({ inicio: '', fin: '' });
@@ -80,17 +76,13 @@ export default function MisPropiedades() {
     }
   };
 
-  // 3. Quitar un bloqueo (DELETE)
   const manejarQuitarBloqueo = async (bloqueoId) => {
     if (!bloqueoId) return toast.error("Error: ID de bloqueo no encontrado");
     if (!window.confirm("¿Estás seguro de que quieres liberar estas fechas?")) return;
 
     try {
-      console.log("Enviando DELETE para ID:", bloqueoId);
       await api.delete(`/FechaBloqueada/${bloqueoId}`);
       toast.success("Bloqueo eliminado correctamente.");
-      
-      // Filtramos la lista local para actualizar la UI sin recargar
       setBloqueosExistentes(prev => prev.filter(b => (b.id || b.Id) !== bloqueoId));
     } catch (err) {
       console.error("Error en el borrado:", err);
@@ -98,7 +90,6 @@ export default function MisPropiedades() {
     }
   };
 
-  // --- Otras funciones de gestión ---
   const manejarBorrar = async (id, titulo) => {
     if (!window.confirm(`¿Estás seguro de que deseas eliminar "${titulo}"?`)) return;
     try {
@@ -112,9 +103,17 @@ export default function MisPropiedades() {
 
   const manejarEditar = (id) => navigate(`/editar-propiedad/${id}`);
 
+  // 🛠️ FUNCIÓN DE IMAGEN BLINDADA
   const obtenerUrlImagen = (ruta) => {
-    if (!ruta) return 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c';
+    // Si no hay ruta O si la base de datos guardó un link de unsplash, mostrar el placeholder
+    if (!ruta || ruta.includes('unsplash')) {
+      return 'https://via.placeholder.com/400x300?text=Sin+Imagen+Disponible';
+    }
+    
+    // Si es otro link de internet válido (cloudinary, amazon, etc), lo dejamos pasar
     if (ruta.startsWith('http')) return ruta;
+    
+    // Si es una imagen local del servidor C#
     const rutaLimpia = ruta.replace(/\\/g, '/').replace('wwwroot/', '').replace('~', '');
     return `http://localhost:5085${rutaLimpia.startsWith('/') ? rutaLimpia : '/' + rutaLimpia}`;
   };
@@ -132,14 +131,12 @@ export default function MisPropiedades() {
           </button>
         </div>
 
-        {/* Panel de Gestión de Bloqueos */}
         {bloqueoActivo && (
           <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '15px', border: '2px solid #ff385c', marginBottom: '30px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)' }}>
             <h2 style={{ marginTop: 0, fontSize: '1.5rem' }}>Disponibilidad: {bloqueoActivo.titulo}</h2>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginTop: '20px' }}>
               
-              {/* Sección: Lista de bloqueos actuales */}
               <div style={{ borderRight: '1px solid #eee', paddingRight: '20px' }}>
                 <h4 style={{ color: '#717171', marginBottom: '15px' }}>Bloqueos activos:</h4>
                 {bloqueosExistentes.length === 0 ? (
@@ -147,7 +144,7 @@ export default function MisPropiedades() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {bloqueosExistentes.map(b => {
-                      const idParaBorrar = b.id || b.Id; // Manejo de casing del ID
+                      const idParaBorrar = b.id || b.Id; 
                       return (
                         <div key={idParaBorrar} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f8f9fa', padding: '12px', borderRadius: '10px' }}>
                           <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>
@@ -166,7 +163,6 @@ export default function MisPropiedades() {
                 )}
               </div>
 
-              {/* Sección: Crear nuevo bloqueo */}
               <div>
                 <h4 style={{ color: '#717171', marginBottom: '15px' }}>Añadir nuevo bloqueo:</h4>
                 <form onSubmit={manejarConfirmarBloqueo} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
